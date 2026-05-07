@@ -49,9 +49,9 @@ Each card requires:
 
 - `tags`: Array of short strings. A single string is accepted by the app, but arrays are preferred.
 - `extra`: Short optional context shown in the card footer.
-- `sources`: Array of citation strings. Use this when cards must remain traceable to source material.
+- `sources`: Array of citation strings or simple source objects. Use this when cards must remain traceable to source material.
 
-The app ignores unknown fields it does not yet display, so `sources` is safe to include in generated decks.
+Open Cards displays sources after the answer is revealed and includes them in LLM progress reports.
 
 ## Source And Citation Rules
 
@@ -60,6 +60,7 @@ Use these rules when generating from documents, search results, course notes, we
 - Every factual card should be grounded in the supplied material.
 - If citations are required, include them in `sources`; never place citations outside the JSON.
 - Keep `sources` machine-readable: use short strings such as `"Lecture 2, slide 14"`, `"GDPR notes, p. 3"`, `"https://example.com/article#section"`, or `"source.md:42-48"`.
+- If using source objects, keep them simple: `title`, `section`, `page`, `slide`, `line`, `locator`, and `url` are understood.
 - If exact line numbers are unavailable, cite the closest stable locator you have: document title, section heading, page, slide, URL, or filename.
 - Use `extra` for a short human note, not for long quoted passages.
 - Do not invent missing details to fill a syllabus or topic list. Generate cards only from supported claims.

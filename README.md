@@ -27,6 +27,16 @@ reports/                # generated LLM progress reports, ignored by git
 
 ## Run
 
+Quick start:
+
+- macOS: double-click `Open Cards.command`.
+- Windows: double-click `Open Cards.bat`.
+
+If Python is missing, the launcher will explain where to install it from. Open Cards needs Python
+3.11 or newer.
+
+For terminal users:
+
 ```bash
 python3 app.py
 ```
@@ -88,7 +98,27 @@ For LLM-generated decks, the loader also accepts:
 - `question` / `answer` instead of `front` / `back`.
 - `prompt` / `response` instead of `front` / `back`.
 - `tags` as either a string or a list.
-- `sources` for citation strings. The app accepts the field even if it does not display it yet.
+- `sources` for citation strings. Sources appear with the answer after reveal and are included in
+  LLM progress reports.
+
+`sources` can be a list of strings:
+
+```json
+"sources": ["lecture-2.md:14-20", "Slide 8"]
+```
+
+The loader also accepts simple source objects from LLM output and turns them into readable citations:
+
+```json
+"sources": [
+  {
+    "title": "Lecture 2",
+    "section": "Retrieval practice",
+    "page": 4,
+    "url": "https://example.com/lecture-2"
+  }
+]
+```
 
 `id` is optional, but stable explicit IDs are recommended so progress survives edits to the deck text.
 
@@ -130,34 +160,3 @@ sessions stay fresh.
 ```bash
 python3 -m unittest
 ```
-
-## Publishing To GitHub
-
-This project is safe to publish as a local-only Python app. Deck files are ignored by default and
-should stay local unless you intentionally force-add a sample.
-
-Recommended first-time setup:
-
-```bash
-git init
-git add app.py flashcards.py test_flashcards.py README.md docs/LLM_FLASHCARD_SPEC.md pyproject.toml .gitignore
-git commit -m "Initial Open Cards app"
-```
-
-If you intentionally want to publish a non-private sample deck, add it explicitly:
-
-```bash
-git add -f decks/sample.json
-git commit -m "Add sample deck"
-```
-
-The `.gitignore` excludes local decks, study state, and generated LLM reports:
-
-- `decks/`
-- `progress/`
-- `reports/`
-- `*_llm_progress_report.json`
-- Python cache files and virtual environments
-
-That keeps card content and private review progress out of GitHub while still allowing you to share
-the app source and docs.

@@ -15,6 +15,7 @@ from flashcards import (
     build_llm_progress_report,
     due_cards,
     format_review_date,
+    format_sources,
     human_due_text,
     load_deck,
     load_progress,
@@ -773,7 +774,7 @@ class FlashcardApp(tk.Tk):
         if not self.current_card or self.answer_visible:
             return
         self.answer_visible = True
-        self._write_text(self.back_text, self.current_card.back)
+        self._write_text(self.back_text, self._format_back_content(self.current_card))
         self.show_button.configure(state="disabled")
         self._set_grade_buttons(enabled=True)
 
@@ -850,7 +851,15 @@ class FlashcardApp(tk.Tk):
         )
         if self.current_card.extra:
             detail += f" | {self.current_card.extra}"
+        if self.current_card.sources:
+            detail += f" | sources: {len(self.current_card.sources)}"
         self.detail_label.configure(text=detail)
+
+    def _format_back_content(self, card: Card) -> str:
+        sources = format_sources(card.sources)
+        if not sources:
+            return card.back
+        return f"{card.back}\n\n{sources}"
 
     def _write_text(self, widget: tk.Text, content: str) -> None:
         widget.configure(state="normal")

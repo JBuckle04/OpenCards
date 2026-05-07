@@ -12,6 +12,7 @@ from flashcards import (
     Deck,
     build_llm_progress_report,
     due_cards,
+    format_sources,
     load_deck,
     load_progress,
     prioritized_study_cards,
@@ -75,6 +76,71 @@ class DeckLoadingTests(unittest.TestCase):
         self.assertEqual(deck.cards[0].id, "cell")
         self.assertEqual(deck.cards[0].tags, ["biology"])
         self.assertEqual(deck.cards[0].sources, ["biology-notes.md:1-4"])
+
+    def test_loads_structured_source_objects_as_readable_citations(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            deck_path = Path(temp_dir) / "deck.json"
+            deck_path.write_text(
+                json.dumps(
+                    {
+                        "deck": "Policy",
+                        "cards": [
+                            {
+                                "id": "policy-test",
+                                "front": "What is the rule?",
+                                "back": "Use supported claims only.",
+                                "sources": [
+                                    {
+                                        "title": "Course notes",
+                                        "section": "Evidence",
+                                        "page": 4,
+                                        "url": "https://example.com/notes",
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            deck = load_deck(deck_path)
+
+        self.assertEqual(
+            deck.cards[0].sources,
+            ["Course notes, Evidence, 4, https://example.com/notes"],
+        )
+
+    def test_format_sources_for_answer_display(self):
+        self.assertEqual(format_sources([]), "")
+        self.assertEqual(
+            format_sources(["lecture.md:4-8", "slide 12"]),
+            "Sources:\n- lecture.md:4-8\n- slide 12",
+        )
+
+    def test_empty_sources_are_ignored(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            deck_path = Path(temp_dir) / "deck.json"
+            deck_path.write_text(
+                json.dumps(
+                    {
+                        "deck": "Empty Sources",
+                        "cards": [
+                            {
+                                "id": "empty-source",
+                                "front": "Question?",
+                                "back": "Answer.",
+                                "sources": ["", {"title": ""}],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            deck = load_deck(deck_path)
+
+        self.assertEqual(deck.cards[0].sources, [])
 
     def test_loads_llm_friendly_question_answer_list(self):
         with tempfile.TemporaryDirectory() as temp_dir:

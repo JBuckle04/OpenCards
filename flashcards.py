@@ -250,14 +250,33 @@ def _parse_card(item: Any, index: int) -> Card:
     if not isinstance(sources, list):
         raise ValueError(f"Card {index} sources must be a string or list.")
 
+    parsed_sources = [source for source in (_parse_source(source) for source in sources) if source]
+
     return Card(
         id=str(card_id),
         front=str(front).strip(),
         back=str(back).strip(),
         tags=[str(tag) for tag in tags],
         extra=str(item.get("extra", "")).strip(),
-        sources=[str(source) for source in sources],
+        sources=parsed_sources,
     )
+
+
+def format_sources(sources: list[str]) -> str:
+    if not sources:
+        return ""
+    return "Sources:\n" + "\n".join(f"- {source}" for source in sources)
+
+
+def _parse_source(source: Any) -> str:
+    if isinstance(source, dict):
+        parts = []
+        for key in ("title", "document", "source", "section", "page", "slide", "line", "locator", "url"):
+            value = source.get(key)
+            if value:
+                parts.append(str(value).strip())
+        return ", ".join(parts) if parts else json.dumps(source, sort_keys=True)
+    return str(source).strip()
 
 
 def _stable_card_id(front: Any, back: Any, index: int) -> str:
