@@ -26,7 +26,7 @@ from flashcards import (
 )
 
 PROGRAM_DIR = Path(__file__).resolve().parent
-APP_NAME = "Open Cards"
+APP_NAME = "OpenCards"
 DECKS_DIR = PROGRAM_DIR / "decks"
 PROGRESS_DIR = PROGRAM_DIR / "progress"
 REPORTS_DIR = PROGRAM_DIR / "reports"
@@ -204,27 +204,29 @@ class RoundedPanel(tk.Canvas):
         master: tk.Misc,
         *,
         radius: int = 18,
-        fill: str = COLORS["panel"],
+        fill: str | None = None,
         outline: str = "",
-        background: str = COLORS["bg"],
+        background: str | None = None,
         padding: tuple[int, int, int, int] = (20, 20, 20, 20),
         width: int = 1,
         height: int = 1,
     ):
+        panel_fill = fill or COLORS["panel"]
+        panel_background = background or COLORS["bg"]
         super().__init__(
             master,
             width=width,
             height=height,
-            bg=background,
+            bg=panel_background,
             highlightthickness=0,
             borderwidth=0,
             relief="flat",
         )
         self.radius = radius
-        self.fill = fill
+        self.fill = panel_fill
         self.outline = outline
         self.padding = padding
-        self.content = tk.Frame(self, bg=fill, highlightthickness=0, borderwidth=0)
+        self.content = tk.Frame(self, bg=panel_fill, highlightthickness=0, borderwidth=0)
         self._window = self.create_window(0, 0, anchor="nw", window=self.content)
         self.bind("<Configure>", self._redraw)
 
@@ -419,12 +421,30 @@ class FlashcardApp(tk.Tk):
             fieldbackground=COLORS["panel_alt"],
             background=COLORS["panel_alt"],
             foreground=COLORS["text"],
+            selectbackground=COLORS["panel_alt"],
+            selectforeground=COLORS["text"],
             bordercolor=COLORS["panel_alt"],
             lightcolor=COLORS["panel_alt"],
             darkcolor=COLORS["panel_alt"],
             arrowcolor=COLORS["brand"],
             padding=(8, 6),
         )
+        self.style.map(
+            "TCombobox",
+            fieldbackground=[
+                ("readonly", COLORS["panel_alt"]),
+                ("focus", COLORS["panel_alt"]),
+            ],
+            background=[("readonly", COLORS["panel_alt"]), ("active", COLORS["panel_alt"])],
+            foreground=[("readonly", COLORS["text"])],
+            selectbackground=[("readonly", COLORS["panel_alt"])],
+            selectforeground=[("readonly", COLORS["text"])],
+            arrowcolor=[("active", COLORS["brand_hover"]), ("readonly", COLORS["brand"])],
+        )
+        self.option_add("*TCombobox*Listbox.background", COLORS["panel_alt"])
+        self.option_add("*TCombobox*Listbox.foreground", COLORS["text"])
+        self.option_add("*TCombobox*Listbox.selectBackground", COLORS["soft_blue"])
+        self.option_add("*TCombobox*Listbox.selectForeground", COLORS["text"])
 
         self._configure_button_style("Primary.TButton", COLORS["brand"], COLORS["brand_hover"])
         self._configure_button_style("Mint.TButton", COLORS["mint"], COLORS["mint_hover"])
@@ -452,9 +472,9 @@ class FlashcardApp(tk.Tk):
         )
         self.style.map(
             name,
-            background=[("active", active_background), ("disabled", "#e5e7eb")],
-            foreground=[("disabled", "#98a2b3")],
-            bordercolor=[("active", active_background), ("disabled", "#e5e7eb")],
+            background=[("active", active_background), ("disabled", COLORS["disabled"])],
+            foreground=[("disabled", COLORS["disabled_text"])],
+            bordercolor=[("active", active_background), ("disabled", COLORS["disabled"])],
         )
 
     def _build_ui(self) -> None:
@@ -472,7 +492,7 @@ class FlashcardApp(tk.Tk):
         header_text.grid(row=0, column=0, sticky="ew")
         header_text.columnconfigure(0, weight=1)
 
-        ttk.Label(header_text, text="Open Cards", style="Eyebrow.TLabel").grid(
+        ttk.Label(header_text, text=APP_NAME, style="Eyebrow.TLabel").grid(
             row=0, column=0, sticky="w"
         )
         self.deck_label = ttk.Label(header_text, text="No deck loaded", style="Title.TLabel")
@@ -533,28 +553,6 @@ class FlashcardApp(tk.Tk):
         )
         self.load_button.grid(row=0, column=0, sticky="w", padx=(0, 8))
 
-        self.open_button = RoundedButton(
-            action_bar,
-            text="Open JSON",
-            command=self.open_deck,
-            fill=COLORS["panel_alt"],
-            active_fill=COLORS["soft_blue"],
-            foreground=COLORS["text"],
-            background=COLORS["panel"],
-        )
-        self.open_button.grid(row=0, column=1, sticky="w", padx=(0, 8))
-
-        self.refresh_button = RoundedButton(
-            action_bar,
-            text="Refresh",
-            command=self.refresh_deck_list,
-            fill=COLORS["panel_alt"],
-            active_fill=COLORS["soft_blue"],
-            foreground=COLORS["text"],
-            background=COLORS["panel"],
-        )
-        self.refresh_button.grid(row=0, column=2, sticky="w", padx=(0, 8))
-
         self.due_button = RoundedButton(
             action_bar,
             text="Due Only",
@@ -564,7 +562,7 @@ class FlashcardApp(tk.Tk):
             foreground=COLORS["text"],
             background=COLORS["panel"],
         )
-        self.due_button.grid(row=0, column=3, sticky="w", padx=(0, 8))
+        self.due_button.grid(row=0, column=1, sticky="w", padx=(0, 8))
         self.due_button.configure(state="disabled")
 
         self.report_button = RoundedButton(
@@ -577,20 +575,21 @@ class FlashcardApp(tk.Tk):
             background=COLORS["panel"],
             min_width=160,
         )
-        self.report_button.grid(row=0, column=4, sticky="w")
+        self.report_button.grid(row=0, column=2, sticky="w")
         self.report_button.configure(state="disabled")
 
-        self.theme_button = RoundedButton(
+        self.more_button = RoundedButton(
             action_bar,
-            text=self._theme_button_text(),
-            command=self.toggle_theme,
+            text="More",
+            command=self.show_more_menu,
             fill=COLORS["panel_alt"],
             active_fill=COLORS["soft_blue"],
             foreground=COLORS["text"],
             background=COLORS["panel"],
-            min_width=122,
+            min_width=96,
         )
-        self.theme_button.grid(row=0, column=5, sticky="w", padx=(8, 0))
+        self.more_button.grid(row=0, column=3, sticky="w", padx=(8, 0))
+        self._build_more_menu()
 
         body = ttk.Frame(self, padding=(18, 0, 18, 10), style="App.TFrame")
         body.grid(row=1, column=0, sticky="nsew")
@@ -612,7 +611,7 @@ class FlashcardApp(tk.Tk):
             footer,
             text=(
                 "Keyboard: Space show answer | 1 Again | 2 Hard | 3 Good | 4 Easy | "
-                "A study all | Ctrl/Cmd+R reload"
+                "A study all | M more | Ctrl/Cmd+O open | Ctrl/Cmd+R reload"
             ),
             anchor="w",
             style="Muted.TLabel",
@@ -727,6 +726,35 @@ class FlashcardApp(tk.Tk):
     def _theme_button_text(self) -> str:
         return "Light Mode" if self.theme_name == "dark" else "Dark Mode"
 
+    def _build_more_menu(self) -> None:
+        self.more_menu = tk.Menu(
+            self,
+            tearoff=0,
+            bg=COLORS["panel_alt"],
+            fg=COLORS["text"],
+            activebackground=COLORS["soft_blue"],
+            activeforeground=COLORS["text"],
+            disabledforeground=COLORS["disabled_text"],
+            borderwidth=0,
+            relief="flat",
+            font=("TkDefaultFont", 10),
+        )
+        self.more_menu.add_command(label="Open JSON...", command=self.open_deck)
+        self.more_menu.add_command(label="Refresh Decks", command=self.refresh_deck_list)
+        self.more_menu.add_separator()
+        self.more_menu.add_command(label=self._theme_button_text(), command=self.toggle_theme)
+
+    def show_more_menu(self) -> None:
+        if not hasattr(self, "more_menu"):
+            return
+        self.more_menu.entryconfigure(3, label=self._theme_button_text())
+        x = self.more_button.winfo_rootx()
+        y = self.more_button.winfo_rooty() + self.more_button.winfo_height() + 4
+        try:
+            self.more_menu.tk_popup(x, y)
+        finally:
+            self.more_menu.grab_release()
+
     def toggle_theme(self) -> None:
         self.theme_name = "dark" if self.theme_name == "light" else "light"
         save_theme_preference(self.theme_name)
@@ -765,6 +793,8 @@ class FlashcardApp(tk.Tk):
         self.bind_all("4", lambda _: self._shortcut_grade("easy"))
         self.bind_all("a", lambda _: self._shortcut_study_all())
         self.bind_all("A", lambda _: self._shortcut_study_all())
+        self.bind_all("m", lambda _: self.show_more_menu())
+        self.bind_all("M", lambda _: self.show_more_menu())
         self.bind_all("<Command-r>", lambda _: self._shortcut_reload())
         self.bind_all("<Control-r>", lambda _: self._shortcut_reload())
         self.bind_all("<Command-o>", lambda _: self._shortcut_open())

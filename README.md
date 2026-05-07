@@ -149,14 +149,16 @@ deck JSON in `decks/`, then use `Refresh Decks` and load it from the deck dropdo
 - `3`: Good
 - `4`: Easy
 - `A`: study all cards, even when none are due
+- `M`: open the More menu
+- `Ctrl/Cmd+O`: open a deck JSON file
 - `Ctrl/Cmd+R`: reload the current deck
 
 `Study All` uses a priority score rather than deck order. Cards you recently missed, marked hard,
 lapsed, have low ease, or are due appear first. Cards with the same score are shuffled so repeat
 sessions stay fresh.
 
-Use the `Dark Mode` / `Light Mode` button in the header to switch themes. The choice is saved
-locally in `progress/theme.txt`.
+Use `More` in the header for `Open JSON`, `Refresh Decks`, and `Dark Mode` / `Light Mode`.
+The theme choice is saved locally in `progress/theme.txt`.
 
 ## Tests
 
