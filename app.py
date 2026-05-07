@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import os
+import subprocess
+import sys
 import tkinter as tk
 from dataclasses import dataclass
 from datetime import datetime
@@ -157,6 +160,16 @@ def save_theme_preference(theme: str) -> None:
 def apply_global_theme(theme: str) -> None:
     COLORS.clear()
     COLORS.update(THEMES.get(theme, LIGHT_COLORS))
+
+
+def open_path_with_system(path: Path) -> None:
+    resolved = path.resolve()
+    if os.name == "nt":
+        os.startfile(str(resolved))  # type: ignore[attr-defined]
+    elif sys.platform == "darwin":
+        subprocess.Popen(["open", str(resolved)])
+    else:
+        subprocess.Popen(["xdg-open", str(resolved)])
 
 
 def draw_round_rect(
@@ -578,6 +591,19 @@ class FlashcardApp(tk.Tk):
         self.report_button.grid(row=0, column=2, sticky="w")
         self.report_button.configure(state="disabled")
 
+        self.edit_decks_button = RoundedButton(
+            action_bar,
+            text="Edit Decks",
+            command=self.show_edit_decks_menu,
+            fill=COLORS["panel_alt"],
+            active_fill=COLORS["soft_blue"],
+            foreground=COLORS["text"],
+            background=COLORS["panel"],
+            min_width=112,
+        )
+        self.edit_decks_button.grid(row=0, column=3, sticky="w", padx=(8, 0))
+        self._build_edit_decks_menu()
+
         self.more_button = RoundedButton(
             action_bar,
             text="More",
@@ -588,7 +614,7 @@ class FlashcardApp(tk.Tk):
             background=COLORS["panel"],
             min_width=96,
         )
-        self.more_button.grid(row=0, column=3, sticky="w", padx=(8, 0))
+        self.more_button.grid(row=0, column=4, sticky="w", padx=(8, 0))
         self._build_more_menu()
 
         body = ttk.Frame(self, padding=(18, 0, 18, 10), style="App.TFrame")
@@ -611,7 +637,7 @@ class FlashcardApp(tk.Tk):
             footer,
             text=(
                 "Keyboard: Space show answer | 1 Again | 2 Hard | 3 Good | 4 Easy | "
-                "A study all | M more | Ctrl/Cmd+O open | Ctrl/Cmd+R reload"
+                "A study all | E edit decks | M more | Ctrl/Cmd+O open | Ctrl/Cmd+R reload"
             ),
             anchor="w",
             style="Muted.TLabel",
@@ -726,8 +752,8 @@ class FlashcardApp(tk.Tk):
     def _theme_button_text(self) -> str:
         return "Light Mode" if self.theme_name == "dark" else "Dark Mode"
 
-    def _build_more_menu(self) -> None:
-        self.more_menu = tk.Menu(
+    def _new_popup_menu(self) -> tk.Menu:
+        return tk.Menu(
             self,
             tearoff=0,
             bg=COLORS["panel_alt"],
@@ -739,21 +765,78 @@ class FlashcardApp(tk.Tk):
             relief="flat",
             font=("TkDefaultFont", 10),
         )
+
+    def _build_more_menu(self) -> None:
+        self.more_menu = self._new_popup_menu()
         self.more_menu.add_command(label="Open JSON...", command=self.open_deck)
         self.more_menu.add_command(label="Refresh Decks", command=self.refresh_deck_list)
         self.more_menu.add_separator()
         self.more_menu.add_command(label=self._theme_button_text(), command=self.toggle_theme)
 
+    def _build_edit_decks_menu(self) -> None:
+        self.edit_decks_menu = self._new_popup_menu()
+        self.edit_decks_menu.add_command(
+            label="Edit Current Deck JSON...", command=self.edit_current_deck
+        )
+        self.edit_decks_menu.add_command(
+            label="Validate Current Deck", command=self.validate_current_deck
+        )
+        self.edit_decks_menu.add_command(label="Reload Current Deck", command=self.reload_deck)
+        self.edit_decks_menu.add_separator()
+        self.edit_decks_menu.add_command(label="Show Decks Folder", command=self.show_decks_folder)
+        self.edit_decks_menu.add_command(label="Refresh Decks", command=self.refresh_deck_list)
+
+    def _show_popup_menu(self, menu: tk.Menu, button: tk.Widget) -> None:
+        x = button.winfo_rootx()
+        y = button.winfo_rooty() + button.winfo_height() + 4
+        try:
+            menu.tk_popup(x, y)
+        finally:
+            menu.grab_release()
+
     def show_more_menu(self) -> None:
         if not hasattr(self, "more_menu"):
             return
         self.more_menu.entryconfigure(3, label=self._theme_button_text())
-        x = self.more_button.winfo_rootx()
-        y = self.more_button.winfo_rooty() + self.more_button.winfo_height() + 4
+        self._show_popup_menu(self.more_menu, self.more_button)
+
+    def show_edit_decks_menu(self) -> None:
+        if not hasattr(self, "edit_decks_menu"):
+            return
+        current_deck_state = "normal" if self.deck else "disabled"
+        for index in (0, 1, 2):
+            self.edit_decks_menu.entryconfigure(index, state=current_deck_state)
+        self._show_popup_menu(self.edit_decks_menu, self.edit_decks_button)
+
+    def edit_current_deck(self) -> None:
+        if not self.deck:
+            messagebox.showinfo("No deck loaded", "Load a deck before editing it.")
+            return
         try:
-            self.more_menu.tk_popup(x, y)
-        finally:
-            self.more_menu.grab_release()
+            open_path_with_system(self.deck_path)
+        except OSError as error:
+            messagebox.showerror("Could not open deck", str(error))
+
+    def validate_current_deck(self) -> None:
+        if not self.deck:
+            messagebox.showinfo("No deck loaded", "Load a deck before validating it.")
+            return
+        try:
+            deck = load_deck(self.deck_path)
+        except (OSError, ValueError) as error:
+            messagebox.showerror("Deck validation failed", str(error))
+            return
+        messagebox.showinfo(
+            "Deck is valid",
+            f"{deck.name}\n{len(deck.cards)} cards\n{self.deck_path}",
+        )
+
+    def show_decks_folder(self) -> None:
+        try:
+            DECKS_DIR.mkdir(parents=True, exist_ok=True)
+            open_path_with_system(DECKS_DIR)
+        except OSError as error:
+            messagebox.showerror("Could not open decks folder", str(error))
 
     def toggle_theme(self) -> None:
         self.theme_name = "dark" if self.theme_name == "light" else "light"
@@ -793,6 +876,8 @@ class FlashcardApp(tk.Tk):
         self.bind_all("4", lambda _: self._shortcut_grade("easy"))
         self.bind_all("a", lambda _: self._shortcut_study_all())
         self.bind_all("A", lambda _: self._shortcut_study_all())
+        self.bind_all("e", lambda _: self.show_edit_decks_menu())
+        self.bind_all("E", lambda _: self.show_edit_decks_menu())
         self.bind_all("m", lambda _: self.show_more_menu())
         self.bind_all("M", lambda _: self.show_more_menu())
         self.bind_all("<Command-r>", lambda _: self._shortcut_reload())

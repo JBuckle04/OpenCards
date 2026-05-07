@@ -86,6 +86,10 @@ In OpenCards:
 
 You can also use `More` > `Open JSON...` to load a deck from another location.
 
+To edit a loaded deck, open `Edit Decks` > `Edit Current Deck JSON...`. Save the file in your
+editor, then use `Edit Decks` > `Validate Current Deck` to check it and `Edit Decks` >
+`Reload Current Deck` to study the latest saved version.
+
 ### 5. Generate Follow-Up Decks From Progress
 
 After studying for a while, press `Export LLM Report`. OpenCards will save a timestamped report in
@@ -248,6 +252,7 @@ deck JSON in `decks/`, then use `Refresh Decks` and load it from the deck dropdo
 - `3`: Good
 - `4`: Easy
 - `A`: study all cards, even when none are due
+- `E`: open the Edit Decks menu
 - `M`: open the More menu
 - `Ctrl/Cmd+O`: open a deck JSON file
 - `Ctrl/Cmd+R`: reload the current deck
@@ -256,8 +261,9 @@ deck JSON in `decks/`, then use `Refresh Decks` and load it from the deck dropdo
 lapsed, have low ease, or are due appear first. Cards with the same score are shuffled so repeat
 sessions stay fresh.
 
-Use `More` in the header for `Open JSON`, `Refresh Decks`, and `Dark Mode` / `Light Mode`.
-The theme choice is saved locally in `progress/theme.txt`.
+Use `Edit Decks` in the header to edit, validate, reload, or reveal local deck files. Use `More`
+for `Open JSON`, `Refresh Decks`, and `Dark Mode` / `Light Mode`. The theme choice is saved locally
+in `progress/theme.txt`.
 
 ## Tests
 
