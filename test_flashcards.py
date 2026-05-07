@@ -7,7 +7,9 @@ from pathlib import Path
 
 from app import default_progress_path, default_report_path, discover_deck_options, progress_save_path
 from flashcards import (
+    Card,
     CardProgress,
+    Deck,
     build_llm_progress_report,
     due_cards,
     load_deck,
@@ -17,6 +19,32 @@ from flashcards import (
     save_progress,
     study_priority_score,
 )
+
+
+def sample_deck() -> Deck:
+    return Deck(
+        name="Python Basics",
+        cards=[
+            Card(
+                id="py-list-comprehension",
+                front="What does a Python list comprehension create?",
+                back="A new list built from an iterable.",
+                tags=["python", "syntax"],
+            ),
+            Card(
+                id="py-dict-get",
+                front="Why use dict.get(key, default)?",
+                back="It returns a default instead of raising KeyError.",
+                tags=["python", "dictionaries"],
+            ),
+            Card(
+                id="py-venv",
+                front="What is a Python virtual environment used for?",
+                back="It isolates project packages.",
+                tags=["python", "tooling"],
+            ),
+        ],
+    )
 
 
 class DeckLoadingTests(unittest.TestCase):
@@ -118,7 +146,7 @@ class ReviewSchedulingTests(unittest.TestCase):
         self.assertEqual(progress.lapses, 1)
 
     def test_due_cards_excludes_future_reviews(self):
-        deck = load_deck(Path("flashcards.json"))
+        deck = sample_deck()
         progress = progress_for(deck)
         progress[deck.cards[0].id].due = (date.today() + timedelta(days=3)).isoformat()
         progress[deck.cards[0].id].last_reviewed = date.today().isoformat()
@@ -146,7 +174,7 @@ class ReviewSchedulingTests(unittest.TestCase):
         self.assertEqual(loaded["card-1"].grade_counts["hard"], 1)
 
     def test_llm_progress_report_prioritizes_weak_cards(self):
-        deck = load_deck(Path("flashcards.json"))
+        deck = sample_deck()
         progress = progress_for(deck)
         progress[deck.cards[0].id].apply_grade("again", reviewed_on=date(2026, 5, 5))
         progress[deck.cards[1].id].apply_grade("easy", reviewed_on=date(2026, 5, 5))
@@ -154,14 +182,14 @@ class ReviewSchedulingTests(unittest.TestCase):
         report = build_llm_progress_report(
             deck,
             progress,
-            deck_path=Path("flashcards.json"),
+            deck_path=Path("sample.json"),
             today=date(2026, 5, 5),
         )
 
         weak_rows = [
             row for row in report["card_progress"] if row["learning_signal"] == "forgotten"
         ]
-        self.assertEqual(report["report_type"], "flashcardbuilder.llm_progress_report")
+        self.assertEqual(report["report_type"], "opencards.llm_progress_report")
         self.assertEqual(report["summary"]["weak_cards"], 1)
         self.assertEqual(weak_rows[0]["id"], deck.cards[0].id)
         self.assertIn("recommended_prompt", report)
@@ -197,7 +225,7 @@ class ReviewSchedulingTests(unittest.TestCase):
         )
 
     def test_prioritized_study_cards_randomizes_within_same_score(self):
-        deck = load_deck(Path("flashcards.json"))
+        deck = sample_deck()
         progress = progress_for(deck)
 
         ordered = prioritized_study_cards(
@@ -211,7 +239,7 @@ class ReviewSchedulingTests(unittest.TestCase):
         self.assertNotEqual([card.id for card in ordered], [card.id for card in deck.cards])
 
     def test_prioritized_study_cards_keeps_weak_cards_first(self):
-        deck = load_deck(Path("flashcards.json"))
+        deck = sample_deck()
         progress = progress_for(deck)
         progress[deck.cards[0].id].apply_grade("easy", reviewed_on=date(2026, 5, 6))
         progress[deck.cards[1].id].apply_grade("again", reviewed_on=date(2026, 5, 6))

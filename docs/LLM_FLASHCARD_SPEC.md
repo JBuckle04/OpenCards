@@ -1,6 +1,6 @@
 # LLM Flashcard Deck Spec
 
-Use this spec when asking an LLM to generate decks for FlashCardBuilder.
+Use this spec when asking an LLM to generate decks for Open Cards.
 
 ## Output Rules
 
@@ -97,7 +97,7 @@ Avoid:
 
 ## Ready-To-Paste Prompt
 
-Generate a FlashCardBuilder deck from the source material below.
+Generate an Open Cards deck from the source material below.
 
 Return valid JSON only. Do not use Markdown, commentary, citations outside JSON, or tool/process notes. Follow this exact shape:
 
@@ -135,7 +135,7 @@ Source material:
 
 Use this when the generating model has searched or read documents and must cite them.
 
-Generate a FlashCardBuilder deck from the provided documents.
+Generate an Open Cards deck from the provided documents.
 
 Return one valid JSON object only. Do not include Markdown fences, prose explanations, search notes, or citations outside the JSON.
 
@@ -174,9 +174,9 @@ Return this shape:
 
 ## Prompt Variant For Progress-Based Follow-Up Decks
 
-Use this when generating a new deck from a FlashCardBuilder LLM progress report.
+Use this when generating a new deck from an Open Cards LLM progress report.
 
-Generate a targeted FlashCardBuilder follow-up deck from this progress report.
+Generate a targeted Open Cards follow-up deck from this progress report.
 
 Return one valid JSON object only. Do not include Markdown fences, prose explanations, or citations outside the JSON.
 
@@ -213,4 +213,4 @@ Return this shape:
 
 Progress report:
 
-[PASTE FLASHCARDBUILDER LLM PROGRESS REPORT JSON HERE]
+[PASTE OPEN CARDS LLM PROGRESS REPORT JSON HERE]

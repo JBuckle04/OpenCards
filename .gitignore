@@ -3,6 +3,7 @@ __pycache__/
 .DS_Store
 
 # Local study state and generated reports can contain private learning data.
+decks/
 progress.json
 progress/
 reports/
@@ -14,5 +15,9 @@ venv/
 .idea/
 .vscode/
 
-#Local cards and decks
+# Keep private decks out of the repository by naming them this way.
+*_private.json
+private_decks/
+
+# Decks are local study material by default. Force-add intentional samples.
 *.json

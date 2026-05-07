@@ -25,10 +25,12 @@ from flashcards import (
 )
 
 PROGRAM_DIR = Path(__file__).resolve().parent
-DEFAULT_DECK = PROGRAM_DIR / "flashcards.json"
-LEGACY_PROGRESS = PROGRAM_DIR / "progress.json"
+APP_NAME = "Open Cards"
+DECKS_DIR = PROGRAM_DIR / "decks"
 PROGRESS_DIR = PROGRAM_DIR / "progress"
 REPORTS_DIR = PROGRAM_DIR / "reports"
+DEFAULT_DECK = DECKS_DIR / "flashcards.json"
+LEGACY_PROGRESS = PROGRESS_DIR / "legacy_progress.json"
 
 COLORS = {
     "bg": "#f6f8fb",
@@ -58,8 +60,10 @@ class DeckOption:
 
 def discover_deck_options(program_dir: Path, progress_path: Path | None = None) -> list[DeckOption]:
     progress_path = progress_path.resolve() if progress_path else None
+    deck_dir = program_dir / "decks"
+    search_dir = deck_dir if deck_dir.exists() else program_dir
     options: list[DeckOption] = []
-    for path in sorted(program_dir.glob("*.json")):
+    for path in sorted(search_dir.glob("*.json")):
         if progress_path and path.resolve() == progress_path:
             continue
         try:
@@ -290,7 +294,7 @@ class RoundedButton(tk.Canvas):
 class FlashcardApp(tk.Tk):
     def __init__(self, deck_path: Path, progress_path: Path | None):
         super().__init__()
-        self.title("FlashCardBuilder")
+        self.title(APP_NAME)
         self.geometry("1040x720")
         self.minsize(820, 600)
         self.configure(bg=COLORS["bg"])
@@ -418,7 +422,7 @@ class FlashcardApp(tk.Tk):
         header_text.grid(row=0, column=0, sticky="ew")
         header_text.columnconfigure(0, weight=1)
 
-        ttk.Label(header_text, text="FLASHCARDBUILDER", style="Eyebrow.TLabel").grid(
+        ttk.Label(header_text, text="OPEN CARDS", style="Eyebrow.TLabel").grid(
             row=0, column=0, sticky="w"
         )
         self.deck_label = ttk.Label(header_text, text="No deck loaded", style="Title.TLabel")
@@ -678,7 +682,7 @@ class FlashcardApp(tk.Tk):
         elif self.deck_options:
             self.load_deck_file(next(iter(self.deck_options.values())))
         else:
-            self._show_empty_state(f"Create a deck JSON file in {PROGRAM_DIR}.")
+            self._show_empty_state(f"Create a deck JSON file in {DECKS_DIR}.")
 
     def refresh_deck_list(self) -> None:
         options = discover_deck_options(PROGRAM_DIR, self.progress_path)
@@ -704,7 +708,7 @@ class FlashcardApp(tk.Tk):
         selected = filedialog.askopenfilename(
             title="Open flashcard deck",
             filetypes=(("JSON files", "*.json"), ("All files", "*.*")),
-            initialdir=str(PROGRAM_DIR),
+            initialdir=str(DECKS_DIR if DECKS_DIR.exists() else PROGRAM_DIR),
         )
         if selected:
             self.load_deck_file(Path(selected))
@@ -893,13 +897,13 @@ class FlashcardApp(tk.Tk):
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Review JSON flashcards with a small Anki-style GUI.")
+    parser = argparse.ArgumentParser(description="Review JSON flashcards with Open Cards.")
     parser.add_argument(
         "deck",
         nargs="?",
         type=Path,
         default=DEFAULT_DECK,
-        help="Path to a JSON deck file. Defaults to flashcards.json.",
+        help="Path to a JSON deck file. Defaults to decks/flashcards.json.",
     )
     parser.add_argument(
         "--progress",
@@ -907,7 +911,7 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help=(
             "Path to review progress JSON. Defaults to progress/<deck-name>_progress.json. "
-            "Existing legacy progress.json is still read until a per-deck file is created."
+            "Existing progress/legacy_progress.json is still read until a per-deck file is created."
         ),
     )
     parser.add_argument(

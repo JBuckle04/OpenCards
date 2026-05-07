@@ -1,17 +1,29 @@
-# FlashCardBuilder
+# Open Cards
 
-A small Python flashcard app that reads JSON decks and reviews them with an Anki-style flow:
+Open Cards is a local Python flashcard app that reads JSON decks and reviews them with an Anki-style flow:
 
 1. Read the front of the card.
 2. Reveal the answer.
 3. Grade recall with `Again`, `Hard`, `Good`, or `Easy`.
 4. Save review progress to a per-deck file in `progress/`.
 
-Decks are loaded from JSON files in the program directory. Use the in-app deck dropdown to switch decks.
+Decks are loaded from JSON files in `decks/`. Use the in-app deck dropdown to switch decks.
 
-The app can also export an LLM progress report from the current deck. Use `Export LLM Report`
+Open Cards can also export an LLM progress report from the current deck. Use `Export LLM Report`
 after studying to create a targeted input for generating a follow-up deck. Everything runs locally;
 there is no hosted sync service or external account dependency.
+
+## Project Layout
+
+```text
+app.py                  # Tkinter UI
+flashcards.py           # deck loading, scheduling, reports
+test_flashcards.py      # unit tests
+docs/                   # LLM and publishing guidance
+decks/                  # local deck JSON files, ignored by git
+progress/               # local study progress, ignored by git
+reports/                # generated LLM progress reports, ignored by git
+```
 
 ## Run
 
@@ -22,7 +34,7 @@ python3 app.py
 To open a specific deck:
 
 ```bash
-python3 app.py path/to/deck.json
+python3 app.py decks/path-to-deck.json
 ```
 
 To store progress somewhere else:
@@ -38,19 +50,19 @@ progress/flashcards_progress.json
 progress/CS5055V1_progress.json
 ```
 
-If an older `progress.json` exists and its card IDs match the deck you open, the app will read it
-for continuity and then save future reviews to the per-deck progress file. This prevents one deck
-from overwriting another deck's study history.
+If an older `progress/legacy_progress.json` exists and its card IDs match the deck you open, the app
+will read it for continuity and then save future reviews to the per-deck progress file. This prevents
+one deck from overwriting another deck's study history.
 
 To export an LLM progress report without opening the GUI:
 
 ```bash
-python3 app.py flashcards.json --export-report
+python3 app.py decks/path-to-deck.json --export-report
 ```
 
 ## JSON Deck Format
 
-For LLM generation guidance, see [LLM_FLASHCARD_SPEC.md](LLM_FLASHCARD_SPEC.md).
+For LLM generation guidance, see [docs/LLM_FLASHCARD_SPEC.md](docs/LLM_FLASHCARD_SPEC.md).
 
 The preferred format is:
 
@@ -97,7 +109,7 @@ The report is not a deck. It summarizes:
 - A `recommended_prompt` that asks an LLM to generate a targeted follow-up deck.
 
 Paste the report JSON into an LLM and ask it to follow the `recommended_prompt`. Save the returned
-deck JSON in this folder, then use `Refresh Decks` and load it from the deck dropdown.
+deck JSON in `decks/`, then use `Refresh Decks` and load it from the deck dropdown.
 
 ## Shortcuts
 
@@ -121,31 +133,31 @@ python3 -m unittest
 
 ## Publishing To GitHub
 
-This project is safe to publish as a local-only Python app. Before pushing, review which deck files
-you want to share publicly.
+This project is safe to publish as a local-only Python app. Deck files are ignored by default and
+should stay local unless you intentionally force-add a sample.
 
 Recommended first-time setup:
 
 ```bash
 git init
-git add app.py flashcards.py test_flashcards.py README.md LLM_FLASHCARD_SPEC.md flashcards.json .gitignore
-git commit -m "Initial local flashcard app"
+git add app.py flashcards.py test_flashcards.py README.md docs/LLM_FLASHCARD_SPEC.md pyproject.toml .gitignore
+git commit -m "Initial Open Cards app"
 ```
 
-If you want to publish extra decks, add them explicitly:
+If you intentionally want to publish a non-private sample deck, add it explicitly:
 
 ```bash
-git add CS5055V1.json
-git commit -m "Add CS5055 flashcard deck"
+git add -f decks/sample.json
+git commit -m "Add sample deck"
 ```
 
-The `.gitignore` excludes local study state and generated LLM reports:
+The `.gitignore` excludes local decks, study state, and generated LLM reports:
 
-- `progress.json`
+- `decks/`
 - `progress/`
 - `reports/`
 - `*_llm_progress_report.json`
 - Python cache files and virtual environments
 
-That keeps private review progress out of GitHub while still allowing you to share the app and any
-deck JSON files you choose.
+That keeps card content and private review progress out of GitHub while still allowing you to share
+the app source and docs.
