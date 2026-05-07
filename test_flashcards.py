@@ -5,7 +5,14 @@ import unittest
 from datetime import date, timedelta
 from pathlib import Path
 
-from app import default_progress_path, default_report_path, discover_deck_options, progress_save_path
+from app import (
+    build_deck_json_data,
+    default_progress_path,
+    default_report_path,
+    discover_deck_options,
+    progress_save_path,
+    save_deck_json,
+)
 from flashcards import (
     Card,
     CardProgress,
@@ -187,6 +194,60 @@ class DeckLoadingTests(unittest.TestCase):
         self.assertEqual(len(options), 1)
         self.assertEqual(options[0].path, deck_path)
         self.assertEqual(options[0].label, "Chemistry (deck.json)")
+
+    def test_builds_deck_json_data_from_editor_rows(self):
+        data = build_deck_json_data(
+            "Edited Deck",
+            [
+                {
+                    "id": "edited-card",
+                    "front": " Front text ",
+                    "back": " Back text ",
+                    "tags": "python, syntax\nreview",
+                    "extra": " Short note ",
+                    "sources": "- notes.md:1-4\nslide 3",
+                }
+            ],
+        )
+
+        self.assertEqual(data["deck"], "Edited Deck")
+        self.assertEqual(data["cards"][0]["front"], "Front text")
+        self.assertEqual(data["cards"][0]["tags"], ["python", "syntax", "review"])
+        self.assertEqual(data["cards"][0]["extra"], "Short note")
+        self.assertEqual(data["cards"][0]["sources"], ["notes.md:1-4", "slide 3"])
+
+    def test_editor_deck_validation_rejects_duplicate_ids(self):
+        rows = [
+            {"id": "same", "front": "One", "back": "Answer", "tags": "", "extra": "", "sources": ""},
+            {"id": "same", "front": "Two", "back": "Answer", "tags": "", "extra": "", "sources": ""},
+        ]
+
+        with self.assertRaisesRegex(ValueError, "used more than once"):
+            build_deck_json_data("Invalid", rows)
+
+    def test_save_deck_json_round_trips_through_loader(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            deck_path = Path(temp_dir) / "edited.json"
+            save_deck_json(
+                deck_path,
+                "Edited",
+                [
+                    {
+                        "id": "round-trip",
+                        "front": "Question?",
+                        "back": "Answer.",
+                        "tags": "tag",
+                        "extra": "",
+                        "sources": "",
+                    }
+                ],
+            )
+
+            deck = load_deck(deck_path)
+
+        self.assertEqual(deck.name, "Edited")
+        self.assertEqual(deck.cards[0].id, "round-trip")
+        self.assertEqual(deck.cards[0].tags, ["tag"])
 
 
 class ReviewSchedulingTests(unittest.TestCase):

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -170,6 +171,78 @@ def open_path_with_system(path: Path) -> None:
         subprocess.Popen(["open", str(resolved)])
     else:
         subprocess.Popen(["xdg-open", str(resolved)])
+
+
+def editor_row_from_card(card: Card) -> dict[str, str]:
+    return {
+        "id": card.id,
+        "front": card.front,
+        "back": card.back,
+        "tags": ", ".join(card.tags),
+        "extra": card.extra,
+        "sources": "\n".join(card.sources),
+    }
+
+
+def split_tags_field(value: str) -> list[str]:
+    return [tag.strip() for tag in value.replace("\n", ",").split(",") if tag.strip()]
+
+
+def split_sources_field(value: str) -> list[str]:
+    sources = []
+    for line in value.splitlines():
+        cleaned = line.strip().removeprefix("-").strip()
+        if cleaned:
+            sources.append(cleaned)
+    return sources
+
+
+def build_deck_json_data(deck_name: str, rows: list[dict[str, str]]) -> dict[str, object]:
+    name = deck_name.strip()
+    if not name:
+        raise ValueError("Deck name is required.")
+    if not rows:
+        raise ValueError("Deck must contain at least one card.")
+
+    seen_ids: set[str] = set()
+    cards = []
+    for index, row in enumerate(rows, start=1):
+        card_id = row.get("id", "").strip()
+        front = row.get("front", "").strip()
+        back = row.get("back", "").strip()
+        if not card_id:
+            raise ValueError(f"Card {index} is missing an id.")
+        if card_id in seen_ids:
+            raise ValueError(f"Card id '{card_id}' is used more than once.")
+        if not front:
+            raise ValueError(f"Card '{card_id}' is missing front text.")
+        if not back:
+            raise ValueError(f"Card '{card_id}' is missing back text.")
+
+        seen_ids.add(card_id)
+        card = {
+            "id": card_id,
+            "front": front,
+            "back": back,
+            "tags": split_tags_field(row.get("tags", "")),
+        }
+        extra = row.get("extra", "").strip()
+        sources = split_sources_field(row.get("sources", ""))
+        if extra:
+            card["extra"] = extra
+        if sources:
+            card["sources"] = sources
+        cards.append(card)
+
+    return {"deck": name, "cards": cards}
+
+
+def save_deck_json(path: Path, deck_name: str, rows: list[dict[str, str]]) -> None:
+    data = build_deck_json_data(deck_name, rows)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as file:
+        json.dump(data, file, indent=2, ensure_ascii=False)
+        file.write("\n")
 
 
 def draw_round_rect(
@@ -352,6 +425,338 @@ class RoundedButton(tk.Canvas):
     def _on_click(self, _: tk.Event) -> None:
         if self.button_state != "disabled" and callable(self.command):
             self.command()
+
+
+class DeckEditorWindow(tk.Toplevel):
+    def __init__(self, app: "FlashcardApp"):
+        super().__init__(app)
+        if not app.deck:
+            raise ValueError("A deck must be loaded before opening the deck editor.")
+        self.app = app
+        self.deck_path = app.deck_path
+        self.rows = [editor_row_from_card(card) for card in app.deck.cards]
+        self.selected_index: int | None = None
+        self.loading_selection = False
+
+        self.title(f"Edit Deck - {app.deck.name}")
+        self.geometry("980x680")
+        self.minsize(820, 560)
+        self.configure(bg=COLORS["bg"])
+        self.transient(app)
+
+        self.deck_name_var = tk.StringVar(value=app.deck.name)
+        self.id_var = tk.StringVar()
+        self.tags_var = tk.StringVar()
+        self.extra_var = tk.StringVar()
+        self.status_var = tk.StringVar(value=f"Editing {self.deck_path}")
+
+        self._build_ui()
+        self._populate_list()
+        if self.rows:
+            self._select_index(0)
+        self.bind("<Command-s>", lambda _: self.save())
+        self.bind("<Control-s>", lambda _: self.save())
+        self.bind("<Command-n>", lambda _: self.add_card())
+        self.bind("<Control-n>", lambda _: self.add_card())
+        self.bind("<Escape>", lambda _: self.destroy())
+        self.focus()
+
+    def _build_ui(self) -> None:
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+
+        header = tk.Frame(self, bg=COLORS["panel"], highlightthickness=0)
+        header.grid(row=0, column=0, sticky="ew", padx=18, pady=(18, 10))
+        header.columnconfigure(1, weight=1)
+
+        ttk.Label(header, text="Deck Name", style="PanelMuted.TLabel").grid(
+            row=0, column=0, sticky="w", padx=(16, 10), pady=14
+        )
+        self.deck_name_entry = self._entry(header, self.deck_name_var)
+        self.deck_name_entry.grid(row=0, column=1, sticky="ew", pady=14)
+
+        self.save_button = RoundedButton(
+            header,
+            text="Save (Ctrl/Cmd+S)",
+            command=self.save,
+            fill=COLORS["brand"],
+            active_fill=COLORS["brand_hover"],
+            background=COLORS["panel"],
+            min_width=156,
+        )
+        self.save_button.grid(row=0, column=2, sticky="e", padx=(12, 16), pady=10)
+
+        body = tk.Frame(self, bg=COLORS["bg"], highlightthickness=0)
+        body.grid(row=1, column=0, sticky="nsew", padx=18, pady=(0, 10))
+        body.columnconfigure(0, weight=1, minsize=260)
+        body.columnconfigure(1, weight=3)
+        body.rowconfigure(0, weight=1)
+
+        left = tk.Frame(body, bg=COLORS["panel"], highlightthickness=0)
+        left.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
+        left.columnconfigure(0, weight=1)
+        left.rowconfigure(1, weight=1)
+
+        ttk.Label(left, text="CARDS", style="CardTitle.TLabel").grid(
+            row=0, column=0, sticky="w", padx=16, pady=(16, 8)
+        )
+        list_frame = tk.Frame(left, bg=COLORS["panel"], highlightthickness=0)
+        list_frame.grid(row=1, column=0, sticky="nsew", padx=16)
+        list_frame.columnconfigure(0, weight=1)
+        list_frame.rowconfigure(0, weight=1)
+
+        self.card_list = tk.Listbox(
+            list_frame,
+            activestyle="none",
+            bg=COLORS["panel_alt"],
+            fg=COLORS["text"],
+            selectbackground=COLORS["soft_blue"],
+            selectforeground=COLORS["text"],
+            highlightthickness=1,
+            highlightbackground=COLORS["line"],
+            highlightcolor=COLORS["brand"],
+            borderwidth=0,
+            relief="flat",
+            font=("TkDefaultFont", 11),
+        )
+        self.card_list.grid(row=0, column=0, sticky="nsew")
+        self.card_list.bind("<<ListboxSelect>>", self._on_list_select)
+
+        scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=self.card_list.yview)
+        scrollbar.grid(row=0, column=1, sticky="ns")
+        self.card_list.configure(yscrollcommand=scrollbar.set)
+
+        left_actions = tk.Frame(left, bg=COLORS["panel"], highlightthickness=0)
+        left_actions.grid(row=2, column=0, sticky="ew", padx=16, pady=14)
+        left_actions.columnconfigure(0, weight=1)
+        left_actions.columnconfigure(1, weight=1)
+
+        self.add_button = RoundedButton(
+            left_actions,
+            text="Add Card",
+            command=self.add_card,
+            fill=COLORS["brand"],
+            active_fill=COLORS["brand_hover"],
+            background=COLORS["panel"],
+            min_width=110,
+        )
+        self.add_button.grid(row=0, column=0, sticky="ew", padx=(0, 8))
+
+        self.delete_button = RoundedButton(
+            left_actions,
+            text="Delete",
+            command=self.delete_card,
+            fill=COLORS["panel_alt"],
+            active_fill=COLORS["rose"],
+            foreground=COLORS["text"],
+            background=COLORS["panel"],
+            min_width=96,
+        )
+        self.delete_button.grid(row=0, column=1, sticky="ew")
+
+        editor = tk.Frame(body, bg=COLORS["panel"], highlightthickness=0)
+        editor.grid(row=0, column=1, sticky="nsew")
+        editor.columnconfigure(0, weight=1)
+        editor.rowconfigure(3, weight=1)
+        editor.rowconfigure(5, weight=1)
+
+        self._field_label(editor, "Card ID").grid(row=0, column=0, sticky="w", padx=16, pady=(16, 6))
+        self.id_entry = self._entry(editor, self.id_var)
+        self.id_entry.grid(row=1, column=0, sticky="ew", padx=16)
+
+        self._field_label(editor, "Front").grid(row=2, column=0, sticky="w", padx=16, pady=(14, 6))
+        self.front_text = self._text(editor, height=5)
+        self.front_text.grid(row=3, column=0, sticky="nsew", padx=16)
+
+        self._field_label(editor, "Back").grid(row=4, column=0, sticky="w", padx=16, pady=(14, 6))
+        self.back_text = self._text(editor, height=5)
+        self.back_text.grid(row=5, column=0, sticky="nsew", padx=16)
+
+        lower = tk.Frame(editor, bg=COLORS["panel"], highlightthickness=0)
+        lower.grid(row=6, column=0, sticky="ew", padx=16, pady=(14, 16))
+        lower.columnconfigure(0, weight=1)
+        lower.columnconfigure(1, weight=1)
+
+        self._field_label(lower, "Tags (comma separated)").grid(row=0, column=0, sticky="w")
+        self.tags_entry = self._entry(lower, self.tags_var)
+        self.tags_entry.grid(row=1, column=0, sticky="ew", padx=(0, 8), pady=(6, 0))
+
+        self._field_label(lower, "Extra").grid(row=0, column=1, sticky="w")
+        self.extra_entry = self._entry(lower, self.extra_var)
+        self.extra_entry.grid(row=1, column=1, sticky="ew", padx=(8, 0), pady=(6, 0))
+
+        self._field_label(lower, "Sources (one per line)").grid(
+            row=2, column=0, columnspan=2, sticky="w", pady=(14, 6)
+        )
+        self.sources_text = self._text(lower, height=4)
+        self.sources_text.grid(row=3, column=0, columnspan=2, sticky="ew")
+
+        footer = tk.Frame(self, bg=COLORS["bg"], highlightthickness=0)
+        footer.grid(row=2, column=0, sticky="ew", padx=18, pady=(0, 18))
+        footer.columnconfigure(0, weight=1)
+
+        ttk.Label(footer, textvariable=self.status_var, style="Muted.TLabel").grid(
+            row=0, column=0, sticky="w"
+        )
+        ttk.Label(
+            footer,
+            text="Shortcuts: Ctrl/Cmd+S save | Ctrl/Cmd+N add card | Esc close",
+            style="Muted.TLabel",
+        ).grid(row=1, column=0, sticky="w", pady=(6, 0))
+
+    def _entry(self, parent: tk.Misc, variable: tk.StringVar) -> tk.Entry:
+        return tk.Entry(
+            parent,
+            textvariable=variable,
+            bg=COLORS["panel_alt"],
+            fg=COLORS["text"],
+            insertbackground=COLORS["brand"],
+            selectbackground=COLORS["soft_blue"],
+            selectforeground=COLORS["text"],
+            relief="flat",
+            highlightthickness=1,
+            highlightbackground=COLORS["line"],
+            highlightcolor=COLORS["brand"],
+            font=("TkDefaultFont", 12),
+        )
+
+    def _text(self, parent: tk.Misc, height: int) -> tk.Text:
+        return tk.Text(
+            parent,
+            height=height,
+            wrap="word",
+            bg=COLORS["panel_alt"],
+            fg=COLORS["text"],
+            insertbackground=COLORS["brand"],
+            selectbackground=COLORS["soft_blue"],
+            selectforeground=COLORS["text"],
+            relief="flat",
+            borderwidth=0,
+            highlightthickness=1,
+            highlightbackground=COLORS["line"],
+            highlightcolor=COLORS["brand"],
+            padx=10,
+            pady=8,
+            font=("TkDefaultFont", 12),
+        )
+
+    def _field_label(self, parent: tk.Misc, text: str) -> ttk.Label:
+        return ttk.Label(parent, text=text, style="PanelMuted.TLabel")
+
+    def _populate_list(self) -> None:
+        self.card_list.delete(0, "end")
+        for index, row in enumerate(self.rows, start=1):
+            self.card_list.insert("end", f"{index}. {self._card_summary(row)}")
+
+    def _card_summary(self, row: dict[str, str]) -> str:
+        front = " ".join(row.get("front", "").split())
+        card_id = row.get("id", "").strip() or "untitled"
+        return front[:54] + ("..." if len(front) > 54 else "") or card_id
+
+    def _on_list_select(self, _: tk.Event) -> None:
+        if self.loading_selection:
+            return
+        selection = self.card_list.curselection()
+        if not selection:
+            return
+        new_index = int(selection[0])
+        if new_index == self.selected_index:
+            return
+        self._save_current_fields()
+        self._select_index(new_index)
+
+    def _select_index(self, index: int) -> None:
+        if not 0 <= index < len(self.rows):
+            return
+        self.loading_selection = True
+        self.card_list.selection_clear(0, "end")
+        self.card_list.selection_set(index)
+        self.card_list.activate(index)
+        self.card_list.see(index)
+        self.loading_selection = False
+        self.selected_index = index
+        self._load_fields(self.rows[index])
+        self.status_var.set(f"Editing card {index + 1} of {len(self.rows)}")
+
+    def _load_fields(self, row: dict[str, str]) -> None:
+        self.id_var.set(row.get("id", ""))
+        self.tags_var.set(row.get("tags", ""))
+        self.extra_var.set(row.get("extra", ""))
+        self._replace_text(self.front_text, row.get("front", ""))
+        self._replace_text(self.back_text, row.get("back", ""))
+        self._replace_text(self.sources_text, row.get("sources", ""))
+
+    def _replace_text(self, widget: tk.Text, value: str) -> None:
+        widget.delete("1.0", "end")
+        widget.insert("1.0", value)
+
+    def _save_current_fields(self) -> None:
+        if self.selected_index is None or not 0 <= self.selected_index < len(self.rows):
+            return
+        self.rows[self.selected_index] = {
+            "id": self.id_var.get(),
+            "front": self.front_text.get("1.0", "end-1c"),
+            "back": self.back_text.get("1.0", "end-1c"),
+            "tags": self.tags_var.get(),
+            "extra": self.extra_var.get(),
+            "sources": self.sources_text.get("1.0", "end-1c"),
+        }
+        self._populate_list()
+        self.card_list.selection_set(self.selected_index)
+
+    def add_card(self) -> None:
+        self._save_current_fields()
+        new_row = {
+            "id": self._unique_card_id(),
+            "front": "",
+            "back": "",
+            "tags": "",
+            "extra": "",
+            "sources": "",
+        }
+        self.rows.append(new_row)
+        self._populate_list()
+        self._select_index(len(self.rows) - 1)
+        self.front_text.focus_set()
+
+    def _unique_card_id(self) -> str:
+        existing = {row.get("id", "").strip() for row in self.rows}
+        base = "new-card"
+        if base not in existing:
+            return base
+        counter = 2
+        while f"{base}-{counter}" in existing:
+            counter += 1
+        return f"{base}-{counter}"
+
+    def delete_card(self) -> None:
+        if self.selected_index is None:
+            return
+        if len(self.rows) == 1:
+            messagebox.showinfo("Cannot delete card", "A deck needs at least one card.")
+            return
+        index = self.selected_index
+        if not messagebox.askyesno("Delete card", "Delete this card from the deck?"):
+            return
+        del self.rows[index]
+        self.selected_index = None
+        self._populate_list()
+        self._select_index(min(index, len(self.rows) - 1))
+
+    def save(self) -> str:
+        self._save_current_fields()
+        try:
+            save_deck_json(self.deck_path, self.deck_name_var.get(), self.rows)
+        except (OSError, ValueError) as error:
+            messagebox.showerror("Could not save deck", str(error))
+            return "break"
+
+        self.app.load_deck_file(self.deck_path)
+        self.app.refresh_deck_list()
+        self.app._select_deck_in_picker(self.deck_path)
+        self.status_var.set(f"Saved {len(self.rows)} cards to {self.deck_path}")
+        messagebox.showinfo("Deck saved", "Saved and reloaded the deck.")
+        return "break"
 
 
 class FlashcardApp(tk.Tk):
@@ -776,12 +1181,16 @@ class FlashcardApp(tk.Tk):
     def _build_edit_decks_menu(self) -> None:
         self.edit_decks_menu = self._new_popup_menu()
         self.edit_decks_menu.add_command(
-            label="Edit Current Deck JSON...", command=self.edit_current_deck
+            label="Edit Current Deck...", command=self.open_deck_editor
         )
         self.edit_decks_menu.add_command(
             label="Validate Current Deck", command=self.validate_current_deck
         )
         self.edit_decks_menu.add_command(label="Reload Current Deck", command=self.reload_deck)
+        self.edit_decks_menu.add_separator()
+        self.edit_decks_menu.add_command(
+            label="Open Current Deck JSON...", command=self.open_current_deck_json
+        )
         self.edit_decks_menu.add_separator()
         self.edit_decks_menu.add_command(label="Show Decks Folder", command=self.show_decks_folder)
         self.edit_decks_menu.add_command(label="Refresh Decks", command=self.refresh_deck_list)
@@ -804,11 +1213,17 @@ class FlashcardApp(tk.Tk):
         if not hasattr(self, "edit_decks_menu"):
             return
         current_deck_state = "normal" if self.deck else "disabled"
-        for index in (0, 1, 2):
+        for index in (0, 1, 2, 4):
             self.edit_decks_menu.entryconfigure(index, state=current_deck_state)
         self._show_popup_menu(self.edit_decks_menu, self.edit_decks_button)
 
-    def edit_current_deck(self) -> None:
+    def open_deck_editor(self) -> None:
+        if not self.deck:
+            messagebox.showinfo("No deck loaded", "Load a deck before editing it.")
+            return
+        DeckEditorWindow(self)
+
+    def open_current_deck_json(self) -> None:
         if not self.deck:
             messagebox.showinfo("No deck loaded", "Load a deck before editing it.")
             return
