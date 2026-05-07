@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Local study state and generated reports can contain private learning data.
+progress.json
+progress/
+reports/
+*_llm_progress_report.json
+
+# Local virtual environments and editor files.
+.venv/
+venv/
+.idea/
+.vscode/

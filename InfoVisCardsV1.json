@@ -1,0 +1,971 @@
+{
+"deck": "CS5044 Information Visualisation Revision",
+"cards": [
+{
+"id": "infovis-friendly-definition",
+"front": "What is information visualisation concerned with?",
+"back": "Showing quantitative and qualitative information so viewers can see patterns, trends, anomalies, constancy, or variation more easily than with text or tables.",
+"tags": ["intro", "definition"],
+"sources": ["week_01-Introduction_2025.pdf, slides 17-20"]
+},
+{
+"id": "infovis-few-purpose",
+"front": "According to Stephen Few, what are the two broad purposes of data visualisation?",
+"back": "Sense-making/data analysis and communication.",
+"tags": ["intro", "purpose"],
+"sources": ["week_01-Introduction_2025.pdf, slides 24-25"]
+},
+{
+"id": "infovis-card-definition",
+"front": "According to Card et al., what does information visualisation use visual representations to do?",
+"back": "Amplify cognition using computer-supported, interactive visual representations of abstract data.",
+"tags": ["intro", "definition"],
+"sources": ["week_01-Introduction_2025.pdf, slides 34-36"]
+},
+{
+"id": "scivis-spatial-data",
+"front": "What type of data is scientific visualisation mainly concerned with?",
+"back": "Spatial, physically based data with an inherent spatial mapping.",
+"tags": ["intro", "scivis"],
+"sources": ["week_01-Introduction_2025.pdf, slide 27"]
+},
+{
+"id": "infovis-abstract-data",
+"front": "What type of data is information visualisation mainly concerned with?",
+"back": "Abstract data that does not have an inherent spatial mapping.",
+"tags": ["intro", "infovis"],
+"sources": ["week_01-Introduction_2025.pdf, slide 28"]
+},
+{
+"id": "abstract-data-mapping-choice",
+"front": "Why does abstract data create a design challenge in InfoVis?",
+"back": "Because the designer must decide how to map the data to visual form.",
+"tags": ["intro", "data-abstraction"],
+"sources": ["week_01-Introduction_2025.pdf, slides 28-30"]
+},
+{
+"id": "infovis-human-in-loop",
+"front": "When is visualisation especially useful compared with pure computational analysis?",
+"back": "When questions are less targeted, many questions are possible, or the goal is to augment human capabilities.",
+"tags": ["intro", "human-in-loop"],
+"sources": ["week_01-Introduction_2025.pdf, slide 41"]
+},
+{
+"id": "interactivity-why-large-complex",
+"front": "Why is interactivity important in information visualisation?",
+"back": "Large or complex data cannot all be shown at once, and a single view usually shows only one aspect.",
+"tags": ["interaction", "motivation"],
+"sources": ["week_01-Introduction_2025.pdf, slide 44", "week_09_interaction_2025.pdf, slide 9"]
+},
+{
+"id": "shneiderman-mantra",
+"front": "What is Shneiderman’s Visual Information Seeking Mantra?",
+"back": "Overview first, zoom and filter, then details on demand.",
+"tags": ["interaction", "rules-of-thumb"],
+"sources": ["week_01-Introduction_2025.pdf, slide 44", "week_08_colour_2025.pdf, slide 10"]
+},
+{
+"id": "sonification-definition",
+"front": "What is sonification?",
+"back": "Representing data through sound.",
+"tags": ["intro", "alternative-modalities"],
+"sources": ["week_01-Introduction_2025.pdf, slide 39"]
+},
+{
+"id": "physicalisation-definition",
+"front": "What is data physicalisation?",
+"back": "A physical artefact whose geometry or material properties encode data.",
+"tags": ["intro", "physicalisation"],
+"sources": ["week_01-Introduction_2025.pdf, slide 39"]
+},
+{
+"id": "visualisation-pipeline-stages",
+"front": "Name the main stages of the visualisation pipeline.",
+"back": "Raw data, data representation, visual representation, visual presentation, and view.",
+"tags": ["pipeline", "process"],
+"sources": ["week_02_what_how_2025.pdf, slide 8"]
+},
+{
+"id": "data-transformation-definition",
+"front": "What does data transformation do in the visualisation pipeline?",
+"back": "It converts raw data into a structured data representation ready for visualisation.",
+"tags": ["pipeline", "data-transformation"],
+"sources": ["week_02_what_how_2025.pdf, slides 11-14"]
+},
+{
+"id": "data-representation-definition",
+"front": "What is a data representation?",
+"back": "Structured, tidy, machine-readable data ready to be visualised.",
+"tags": ["pipeline", "data-representation"],
+"sources": ["week_02_what_how_2025.pdf, slide 14"]
+},
+{
+"id": "visual-mapping-definition",
+"front": "What is visual mapping?",
+"back": "The mapping from data attributes to marks and visual variables in a visual representation.",
+"tags": ["pipeline", "visual-mapping"],
+"sources": ["week_02_what_how_2025.pdf, slides 15-17"]
+},
+{
+"id": "presentation-transformation-definition",
+"front": "What does presentation transformation consider?",
+"back": "Display resolution, layout, arrangement, size, and possible interactions.",
+"tags": ["pipeline", "presentation"],
+"sources": ["week_02_what_how_2025.pdf, slide 20"]
+},
+{
+"id": "view-definition",
+"front": "What is the view in the visualisation pipeline?",
+"back": "The rendered visualisation visible to the user, which can change through interaction.",
+"tags": ["pipeline", "view"],
+"sources": ["week_02_what_how_2025.pdf, slide 22"]
+},
+{
+"id": "data-semantics-definition",
+"front": "What are data semantics?",
+"back": "The real-world meaning of the data: what a data point actually represents.",
+"tags": ["data-types", "semantics"],
+"sources": ["week_02_what_how_2025.pdf, slide 27"]
+},
+{
+"id": "data-types-why-important",
+"front": "Why do data semantics and data type matter in visualisation design?",
+"back": "They influence the choice of visual representation.",
+"tags": ["data-types", "design"],
+"sources": ["week_02_what_how_2025.pdf, slide 27"]
+},
+{
+"id": "categorical-attribute-definition",
+"front": "What is a categorical attribute?",
+"back": "A discrete attribute with no intrinsic ordering.",
+"tags": ["data-types", "categorical"],
+"sources": ["week_02_what_how_2025.pdf, slide 35"]
+},
+{
+"id": "categorical-attribute-operations",
+"front": "What operations make sense for categorical attributes?",
+"back": "Same as and not the same as.",
+"tags": ["data-types", "categorical"],
+"sources": ["week_02_what_how_2025.pdf, slide 35"]
+},
+{
+"id": "ordinal-attribute-definition",
+"front": "What is an ordinal attribute?",
+"back": "A discrete attribute with an implicit, well-defined ordering.",
+"tags": ["data-types", "ordinal"],
+"sources": ["week_02_what_how_2025.pdf, slide 36"]
+},
+{
+"id": "ordinal-math-operations",
+"front": "Do mathematical operations generally make sense for ordinal attributes?",
+"back": "No. Ranking makes sense, but arithmetic generally does not.",
+"tags": ["data-types", "ordinal"],
+"sources": ["week_02_what_how_2025.pdf, slide 36"]
+},
+{
+"id": "quantitative-attribute-definition",
+"front": "What is a quantitative attribute?",
+"back": "A measurement of magnitude where mathematical operations make sense.",
+"tags": ["data-types", "quantitative"],
+"sources": ["week_02_what_how_2025.pdf, slide 37"]
+},
+{
+"id": "quantitative-typical-relations",
+"front": "What typical relations are useful for quantitative data?",
+"back": "Ranking, ratios, and correlations.",
+"tags": ["data-types", "quantitative"],
+"sources": ["week_02_what_how_2025.pdf, slide 37"]
+},
+{
+"id": "marks-definition",
+"front": "What are marks in visualisation?",
+"back": "Basic graphical elements visible on paper or screen.",
+"tags": ["visual-encoding", "marks"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 5"]
+},
+{
+"id": "mark-types",
+"front": "Name the basic mark types discussed in the course.",
+"back": "Point, line, and area.",
+"tags": ["visual-encoding", "marks"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 5"]
+},
+{
+"id": "expressiveness-principle",
+"front": "What is the expressiveness principle?",
+"back": "The visual encoding should express all of, and only, the information in the dataset attributes.",
+"tags": ["visual-encoding", "expressiveness"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 12"]
+},
+{
+"id": "expressiveness-ordered-data",
+"front": "How should ordered data be encoded under the expressiveness principle?",
+"back": "In a way that our perceptual system intrinsically senses as ordered.",
+"tags": ["visual-encoding", "expressiveness"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 12"]
+},
+{
+"id": "expressiveness-categorical-data",
+"front": "How should categorical data be encoded under the expressiveness principle?",
+"back": "In a way that does not perceptually suggest ordering.",
+"tags": ["visual-encoding", "expressiveness"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 12"]
+},
+{
+"id": "effectiveness-principle",
+"front": "What is the effectiveness principle?",
+"back": "The most important attributes should be encoded with the most effective visual variables so they are most noticeable.",
+"tags": ["visual-encoding", "effectiveness"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 17"]
+},
+{
+"id": "effectiveness-considerations",
+"front": "What five issues are considered under effectiveness?",
+"back": "Accuracy, discriminability, separability, popout, and grouping.",
+"tags": ["visual-encoding", "effectiveness"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 17"]
+},
+{
+"id": "discriminability-hue-limit",
+"front": "Why is hue limited for discriminability?",
+"back": "Only about seven hue distinctions can be made reliably.",
+"tags": ["visual-encoding", "colour"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 20", "week_08_colour_2025.pdf, slide 37"]
+},
+{
+"id": "separability-definition",
+"front": "What does separability ask about visual variables?",
+"back": "How one visual variable interacts or interferes with another.",
+"tags": ["visual-encoding", "effectiveness"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 21"]
+},
+{
+"id": "popout-definition",
+"front": "What does popout mean in visual encoding?",
+"back": "How easily items that stand out can be identified.",
+"tags": ["visual-encoding", "effectiveness"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 22"]
+},
+{
+"id": "grouping-strongest-variable",
+"front": "Which visual variable is strongest for seeing grouping/similarity?",
+"back": "Position.",
+"tags": ["visual-encoding", "grouping"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 22"]
+},
+{
+"id": "scatterplot-data-types",
+"front": "What data does a scatterplot primarily show?",
+"back": "At least two quantitative attributes.",
+"tags": ["techniques", "scatterplots"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 36"]
+},
+{
+"id": "scatterplot-encoding",
+"front": "How does a scatterplot encode quantitative values?",
+"back": "Using point marks positioned horizontally and vertically.",
+"tags": ["techniques", "scatterplots"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 36"]
+},
+{
+"id": "scatterplot-tasks",
+"front": "What analysis tasks do scatterplots support well?",
+"back": "Finding correlations, overviews, distributions, trends, outliers, and extremes.",
+"tags": ["techniques", "scatterplots"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 37"]
+},
+{
+"id": "scatterplot-scale-limitation",
+"front": "What is a scale limitation of scatterplots?",
+"back": "With large datasets, distinguishing individual points becomes difficult.",
+"tags": ["techniques", "scatterplots"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 38"]
+},
+{
+"id": "bubble-chart-encoding",
+"front": "What extra data can a bubble chart add beyond a basic scatterplot?",
+"back": "A third quantitative attribute by size and often a categorical attribute by hue.",
+"tags": ["techniques", "scatterplots", "bubble-chart"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 40"]
+},
+{
+"id": "scatterplot-matrix-purpose",
+"front": "What is a scatterplot matrix used for?",
+"back": "Exploring pairwise correlations across multiple quantitative attributes.",
+"tags": ["techniques", "scatterplot-matrix"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slides 41-43"]
+},
+{
+"id": "scatterplot-matrix-scale",
+"front": "What is a typical scale guideline for scatterplot matrices?",
+"back": "Fewer than about 12 attributes and hundreds of data points.",
+"tags": ["techniques", "scatterplot-matrix"],
+"sources": ["week_03_VisTechniques_1_2025.pdf, slide 43"]
+},
+{
+"id": "parallel-coordinates-data",
+"front": "What type of attributes do parallel coordinates visualise?",
+"back": "Multiple quantitative or ordinal attributes.",
+"tags": ["techniques", "parallel-coordinates"],
+"sources": ["week_04_VisTechniques_2_2025.pdf, slide 28"]
+},
+{
+"id": "parallel-coordinates-positive-correlation",
+"front": "In parallel coordinates, what indicates positive correlation?",
+"back": "Roughly parallel lines between adjacent axes.",
+"tags": ["techniques", "parallel-coordinates"],
+"sources": ["week_04_VisTechniques_2_2025.pdf, slide 28"]
+},
+{
+"id": "parallel-coordinates-negative-correlation",
+"front": "In parallel coordinates, what indicates negative correlation?",
+"back": "Crossing lines between adjacent axes.",
+"tags": ["techniques", "parallel-coordinates"],
+"sources": ["week_04_VisTechniques_2_2025.pdf, slide 28"]
+},
+{
+"id": "parallel-coordinates-tasks",
+"front": "What tasks do parallel coordinates support well?",
+"back": "Finding correlations, ranges, extremes, and outliers.",
+"tags": ["techniques", "parallel-coordinates"],
+"sources": ["week_04_VisTechniques_2_2025.pdf, slide 29"]
+},
+{
+"id": "parallel-coordinates-axis-order",
+"front": "Why is axis ordering important in parallel coordinates?",
+"back": "Only relationships between nearby axes are easy to interpret, so ordering affects visible patterns.",
+"tags": ["techniques", "parallel-coordinates"],
+"sources": ["week_04_VisTechniques_2_2025.pdf, slide 29"]
+},
+{
+"id": "parallel-coordinates-scale",
+"front": "What scale is parallel coordinates best suited for?",
+"back": "Hundreds of items, not thousands, and a moderate number of attributes, around 12.",
+"tags": ["techniques", "parallel-coordinates"],
+"sources": ["week_04_VisTechniques_2_2025.pdf, slide 29"]
+},
+{
+"id": "streamgraph-data-type",
+"front": "What type of data are streamgraphs appropriate for?",
+"back": "Temporal data.",
+"tags": ["techniques", "streamgraphs"],
+"sources": ["week_04_VisTechniques_2_2025.pdf, slides 21-24"]
+},
+{
+"id": "radial-bar-chart-recognition",
+"front": "What visualisation uses bars arranged radially around a circle?",
+"back": "A radial bar chart.",
+"tags": ["techniques", "radial"],
+"sources": ["week_04_VisTechniques_2_2025.pdf, slides 31-32"]
+},
+{
+"id": "activities-three-groups",
+"front": "What three activity groups can visualisations support in Munzner’s task abstraction?",
+"back": "Analyse, search, and query.",
+"tags": ["tasks", "activity-abstraction"],
+"sources": ["week_05_activities_guidelines_2025.pdf, slide 7"]
+},
+{
+"id": "analyse-consume-produce",
+"front": "What are the two high-level modes of analyse activity?",
+"back": "Consume and produce.",
+"tags": ["tasks", "analyse"],
+"sources": ["week_05_activities_guidelines_2025.pdf, slide 7"]
+},
+{
+"id": "query-activities",
+"front": "What are the three query-related activities?",
+"back": "Identify, compare, and summarise.",
+"tags": ["tasks", "query"],
+"sources": ["week_05_activities_guidelines_2025.pdf, slide 7"]
+},
+{
+"id": "search-activities",
+"front": "What are the four search activities supported by visualisation?",
+"back": "Lookup, locate, browse, and explore.",
+"tags": ["tasks", "search"],
+"sources": ["week_05_activities_guidelines_2025.pdf, slide 7"]
+},
+{
+"id": "lookup-definition",
+"front": "In search activity taxonomy, when is a user doing lookup?",
+"back": "When both target identity and target location are known.",
+"tags": ["tasks", "search"],
+"sources": ["week_05_activities_guidelines_2025.pdf, slides 23-24", "CS5044-24-2-1.pdf, question 2b"]
+},
+{
+"id": "locate-definition",
+"front": "In search activity taxonomy, when is a user doing locate?",
+"back": "When the target identity is known but its location is unknown.",
+"tags": ["tasks", "search"],
+"sources": ["week_05_activities_guidelines_2025.pdf, slides 23-24", "CS5044-24-2-1.pdf, question 2b"]
+},
+{
+"id": "browse-definition",
+"front": "In search activity taxonomy, when is a user doing browse?",
+"back": "When the target location is known but the target identity is unknown.",
+"tags": ["tasks", "search"],
+"sources": ["week_05_activities_guidelines_2025.pdf, slides 23-24", "CS5044-24-2-1.pdf, question 2b"]
+},
+{
+"id": "explore-definition",
+"front": "In search activity taxonomy, when is a user doing explore?",
+"back": "When both target identity and target location are unknown.",
+"tags": ["tasks", "search"],
+"sources": ["week_05_activities_guidelines_2025.pdf, slides 23-24", "CS5044-24-2-1.pdf, question 2b"]
+},
+{
+"id": "discover-purpose",
+"front": "What does a visualisation with the purpose of discover support?",
+"back": "Open-ended exploration of data.",
+"tags": ["tasks", "discover"],
+"sources": ["week_05_activities_guidelines_2025.pdf, slide 10"]
+},
+{
+"id": "present-purpose",
+"front": "What does a visualisation with the purpose of present support?",
+"back": "Communication of existing knowledge.",
+"tags": ["tasks", "present"],
+"sources": ["week_05_activities_guidelines_2025.pdf, slide 12"]
+},
+{
+"id": "discover-design-guidance",
+"front": "For discovery-oriented visualisations, what should the design show?",
+"back": "The data from different perspectives.",
+"tags": ["tasks", "discover"],
+"sources": ["week_05_activities_guidelines_2025.pdf, slides 17-18"]
+},
+{
+"id": "derive-activity-definition",
+"front": "What is derive as a produce activity?",
+"back": "Calculating or creating new data attributes from existing data.",
+"tags": ["tasks", "produce"],
+"sources": ["week_05_activities_guidelines_2025.pdf, slides 21-22"]
+},
+{
+"id": "munzner-no-unjustified-3d",
+"front": "What does the rule of thumb 'no unjustified 3D' warn against?",
+"back": "Using 3D when it does not serve the data or task.",
+"tags": ["guidelines", "3d"],
+"sources": ["week_08_colour_2025.pdf, slide 10"]
+},
+{
+"id": "munzner-resolution-over-immersion",
+"front": "What does 'resolution over immersion' prioritise?",
+"back": "Readable, information-rich display over immersive presentation.",
+"tags": ["guidelines", "rules-of-thumb"],
+"sources": ["week_08_colour_2025.pdf, slide 10"]
+},
+{
+"id": "munzner-eyes-beat-memory",
+"front": "What does the rule 'eyes beat memory' mean?",
+"back": "Prefer designs where users can visually compare information rather than remember it.",
+"tags": ["guidelines", "rules-of-thumb"],
+"sources": ["week_08_colour_2025.pdf, slide 10"]
+},
+{
+"id": "munzner-black-and-white",
+"front": "What does 'get it right in black and white' mean?",
+"back": "The design should remain understandable without relying solely on colour.",
+"tags": ["guidelines", "colour"],
+"sources": ["week_08_colour_2025.pdf, slide 10"]
+},
+{
+"id": "munzner-form-follows-function",
+"front": "What does 'form follows function' mean in visualisation?",
+"back": "Visual design choices should be driven by the task and purpose.",
+"tags": ["guidelines", "design"],
+"sources": ["week_08_colour_2025.pdf, slide 10"]
+},
+{
+"id": "arc-diagram-definition",
+"front": "What is an arc diagram?",
+"back": "A 1D relation visualisation where entities are nodes along an axis and relationships are arcs.",
+"tags": ["relations", "arc-diagram"],
+"sources": ["week_06_EncodingRelations_2025.pdf, slide 14"]
+},
+{
+"id": "arc-diagram-good-for",
+"front": "What are arc diagrams good for showing?",
+"back": "Pairwise relationships.",
+"tags": ["relations", "arc-diagram"],
+"sources": ["week_06_EncodingRelations_2025.pdf, slide 14"]
+},
+{
+"id": "arc-diagram-relationship-strength",
+"front": "How can arc diagrams encode relationship strength?",
+"back": "Through arc thickness, height, or colour.",
+"tags": ["relations", "arc-diagram"],
+"sources": ["week_06_EncodingRelations_2025.pdf, slide 14"]
+},
+{
+"id": "node-link-typical-representation",
+"front": "How are relations typically represented in node-link diagrams?",
+"back": "Each data point is a mark, and relations are shown by connections between marks.",
+"tags": ["relations", "node-link"],
+"sources": ["week_06_EncodingRelations_2025.pdf, slide 9"]
+},
+{
+"id": "circle-arrangements-limitation",
+"front": "What is a major limitation of circular node-link arrangements?",
+"back": "With many nodes and connections, they get messy quickly.",
+"tags": ["relations", "node-link"],
+"sources": ["week_06_EncodingRelations_2025.pdf, slide 24"]
+},
+{
+"id": "hierarchical-edge-bundling-purpose",
+"front": "What problem does hierarchical edge bundling address?",
+"back": "It reduces visual clutter in dense relationship diagrams.",
+"tags": ["relations", "edge-bundling"],
+"sources": ["week_06_EncodingRelations_2025.pdf, slides 24-25"]
+},
+{
+"id": "chord-diagram-purpose",
+"front": "What do chord diagrams visualise?",
+"back": "Relationships between and within groups of entities.",
+"tags": ["relations", "chord-diagram"],
+"sources": ["week_06_EncodingRelations_2025.pdf, slides 26-28"]
+},
+{
+"id": "chord-diagram-outer-fragment",
+"front": "In a chord diagram, what does each outer circle fragment represent?",
+"back": "A group of entities.",
+"tags": ["relations", "chord-diagram"],
+"sources": ["week_06_EncodingRelations_2025.pdf, slide 26"]
+},
+{
+"id": "chord-diagram-fragment-size",
+"front": "In a chord diagram, what does the size of an outer fragment indicate?",
+"back": "Part-to-whole breakdown for that group.",
+"tags": ["relations", "chord-diagram"],
+"sources": ["week_06_EncodingRelations_2025.pdf, slide 26"]
+},
+{
+"id": "chord-diagram-arc-size",
+"front": "In a chord diagram, what does arc size encode?",
+"back": "The importance or frequency of the relationship.",
+"tags": ["relations", "chord-diagram"],
+"sources": ["week_06_EncodingRelations_2025.pdf, slide 27"]
+},
+{
+"id": "sankey-diagram-purpose",
+"front": "What are Sankey diagrams especially useful for?",
+"back": "Showing how categories compare and flow into other states or categories.",
+"tags": ["relations", "sankey"],
+"sources": ["week_06_EncodingRelations_2025.pdf, slide 34"]
+},
+{
+"id": "treemap-strength",
+"front": "What is a key strength of treemaps?",
+"back": "They are highly scalable for showing hierarchical part-to-whole data.",
+"tags": ["hierarchies", "treemap"],
+"sources": ["week_07_chartJunk_maps_text_2025.pdf, slides 16-17"]
+},
+{
+"id": "treemap-layout",
+"front": "Do treemaps use adjacency or containment layout?",
+"back": "Containment layout.",
+"tags": ["hierarchies", "treemap"],
+"sources": ["week_07_chartJunk_maps_text_2025.pdf, slides 16-17"]
+},
+{
+"id": "data-ink-definition",
+"front": "What is data-ink?",
+"back": "Ink or pixels used to represent data; it changes if the data changes.",
+"tags": ["chart-junk", "data-ink"],
+"sources": ["week_07_chartJunk_maps_text_2025.pdf, slide 27"]
+},
+{
+"id": "data-ink-ratio-definition",
+"front": "What is the data-ink ratio?",
+"back": "The proportion of total ink or pixels devoted to data-driven information.",
+"tags": ["chart-junk", "data-ink"],
+"sources": ["week_07_chartJunk_maps_text_2025.pdf, slide 28"]
+},
+{
+"id": "tufte-data-ink-recommendation",
+"front": "What does Tufte recommend regarding the data-ink ratio?",
+"back": "Maximise data-ink and erase non-data ink and redundant data-ink, within reason.",
+"tags": ["chart-junk", "tufte"],
+"sources": ["week_07_chartJunk_maps_text_2025.pdf, slides 29-33"]
+},
+{
+"id": "chartjunk-definition",
+"front": "What is chart junk?",
+"back": "Visual embellishments not essentially necessary to understand the data.",
+"tags": ["chart-junk", "definition"],
+"sources": ["week_07_chartJunk_maps_text_2025.pdf, slide 35"]
+},
+{
+"id": "chartjunk-excessive-gridlines",
+"front": "Why can excessive dark gridlines be chart junk?",
+"back": "They add clutter and graphic activity unrelated to the data.",
+"tags": ["chart-junk", "gridlines"],
+"sources": ["week_07_chartJunk_maps_text_2025.pdf, slide 36"]
+},
+{
+"id": "chartjunk-3d-texturing",
+"front": "Name two common forms of chart junk.",
+"back": "Unnecessary 3D effects and texturing.",
+"tags": ["chart-junk", "examples"],
+"sources": ["week_07_chartJunk_maps_text_2025.pdf, slide 37"]
+},
+{
+"id": "chartjunk-caveat",
+"front": "What is the main caveat to removing all non-data ink?",
+"back": "Some redundancy and non-data ink can improve understanding, sensemaking, or recall.",
+"tags": ["chart-junk", "design-tradeoff"],
+"sources": ["week_07_chartJunk_maps_text_2025.pdf, slides 33 and 40"]
+},
+{
+"id": "colour-three-variables",
+"front": "In visualisation, colour can be treated as which separate visual variables?",
+"back": "Luminance/value/brightness, saturation, hue, and transparency.",
+"tags": ["colour", "visual-variables"],
+"sources": ["week_08_colour_2025.pdf, slide 22"]
+},
+{
+"id": "rgb-use",
+"front": "What is RGB mainly used for?",
+"back": "Digital displays.",
+"tags": ["colour", "colour-spaces"],
+"sources": ["week_08_colour_2025.pdf, slide 18"]
+},
+{
+"id": "rgb-model-type",
+"front": "What type of colour model is RGB?",
+"back": "An additive colour model.",
+"tags": ["colour", "colour-spaces"],
+"sources": ["week_08_colour_2025.pdf, slide 18"]
+},
+{
+"id": "cmy-model-type",
+"front": "What type of colour model is CMY?",
+"back": "A subtractive colour model.",
+"tags": ["colour", "colour-spaces"],
+"sources": ["week_08_colour_2025.pdf, slide 19"]
+},
+{
+"id": "hsl-components",
+"front": "What does HSL stand for?",
+"back": "Hue, saturation, and lightness.",
+"tags": ["colour", "colour-spaces"],
+"sources": ["week_08_colour_2025.pdf, slide 20"]
+},
+{
+"id": "luminance-good-for",
+"front": "What type of data is luminance good for?",
+"back": "Ordered data types.",
+"tags": ["colour", "luminance"],
+"sources": ["week_08_colour_2025.pdf, slide 23"]
+},
+{
+"id": "luminance-shape-text",
+"front": "Why is luminance important for intricate shapes and text?",
+"back": "It has high resolution and supports shape and edge detection.",
+"tags": ["colour", "luminance"],
+"sources": ["week_08_colour_2025.pdf, slide 23"]
+},
+{
+"id": "luminance-background",
+"front": "What affects the perceived luminance of non-contiguous regions?",
+"back": "The surrounding background and contrast effects.",
+"tags": ["colour", "luminance"],
+"sources": ["week_08_colour_2025.pdf, slide 25"]
+},
+{
+"id": "luminance-greyscale-rule",
+"front": "What is the rule of thumb for using greyscale to encode numerical values?",
+"back": "Avoid using greyscale for more than five numerical values.",
+"tags": ["colour", "luminance"],
+"sources": ["week_08_colour_2025.pdf, slide 29"]
+},
+{
+"id": "saturation-definition",
+"front": "What does saturation define?",
+"back": "The purity or colourfulness of a hue.",
+"tags": ["colour", "saturation"],
+"sources": ["week_08_colour_2025.pdf, slide 30"]
+},
+{
+"id": "saturation-good-for",
+"front": "What type of data is saturation good for?",
+"back": "Ordered data types.",
+"tags": ["colour", "saturation"],
+"sources": ["week_08_colour_2025.pdf, slide 30"]
+},
+{
+"id": "saturation-small-marks",
+"front": "Why should saturation levels be used cautiously for small marks?",
+"back": "Saturation is harder to distinguish in small regions.",
+"tags": ["colour", "saturation"],
+"sources": ["week_08_colour_2025.pdf, slides 31-32"]
+},
+{
+"id": "hue-good-for",
+"front": "What type of data is hue good for?",
+"back": "Categorical data, especially for showing groupings.",
+"tags": ["colour", "hue"],
+"sources": ["week_08_colour_2025.pdf, slide 34"]
+},
+{
+"id": "hue-no-ordering",
+"front": "Why should hue not normally encode ordered data?",
+"back": "Hue has no implicit perceptual ordering.",
+"tags": ["colour", "hue", "expressiveness"],
+"sources": ["week_08_colour_2025.pdf, slide 37"]
+},
+{
+"id": "hue-seven-rule",
+"front": "What is the rule of thumb for the number of hues?",
+"back": "Do not use many more than seven different hues.",
+"tags": ["colour", "hue"],
+"sources": ["week_08_colour_2025.pdf, slide 37"]
+},
+{
+"id": "transparency-definition",
+"front": "What is transparency as a visual encoding?",
+"back": "Encoding information by decreasing mark opacity from opaque to see-through.",
+"tags": ["colour", "transparency"],
+"sources": ["week_08_colour_2025.pdf, slide 39"]
+},
+{
+"id": "transparency-separability",
+"front": "Is transparency separable from other colour variables?",
+"back": "No. It strongly interacts with luminance and saturation.",
+"tags": ["colour", "transparency"],
+"sources": ["week_08_colour_2025.pdf, slide 39"]
+},
+{
+"id": "rainbow-colourmap-problem",
+"front": "What is a major perceptual problem with the standard rainbow colourmap?",
+"back": "It is perceptually non-linear.",
+"tags": ["colour", "rainbow"],
+"sources": ["CS5044-24-2-1.pdf, question 1d", "week_08_colour_2025.pdf, slide 2"]
+},
+{
+"id": "interaction-intentions",
+"front": "Name the seven interaction intentions from Yi et al.",
+"back": "Select, explore/navigate, reconfigure, encode, abstract/elaborate/zoom, filter, and connect.",
+"tags": ["interaction", "intentions"],
+"sources": ["week_09_interaction_2025.pdf, slide 11"]
+},
+{
+"id": "select-intention",
+"front": "What is the intention of select interaction?",
+"back": "To mark something as interesting.",
+"tags": ["interaction", "select"],
+"sources": ["week_09_interaction_2025.pdf, slide 13"]
+},
+{
+"id": "select-feedback-methods",
+"front": "Name two ways a visualisation can show feedback after selection.",
+"back": "Changing colour, outline, size, or adding connecting lines.",
+"tags": ["interaction", "select"],
+"sources": ["week_09_interaction_2025.pdf, slide 14"]
+},
+{
+"id": "explore-navigate-intention",
+"front": "What is the intention of explore/navigate interaction?",
+"back": "To show something new or change viewpoint.",
+"tags": ["interaction", "navigate"],
+"sources": ["week_09_interaction_2025.pdf, slide 16"]
+},
+{
+"id": "reconfigure-intention",
+"front": "What is the intention of reconfigure interaction?",
+"back": "To show the data in a different arrangement.",
+"tags": ["interaction", "reconfigure"],
+"sources": ["week_09_interaction_2025.pdf, slide 21"]
+},
+{
+"id": "encode-intention",
+"front": "What is the intention of encode interaction?",
+"back": "To show a different visual representation or alter the visual encoding.",
+"tags": ["interaction", "encode"],
+"sources": ["week_09_interaction_2025.pdf, slides 26-27"]
+},
+{
+"id": "abstract-elaborate-zoom-intention",
+"front": "What is the intention of abstract/elaborate/zoom interaction?",
+"back": "To show more or less detail.",
+"tags": ["interaction", "zoom"],
+"sources": ["week_09_interaction_2025.pdf, slides 29-31"]
+},
+{
+"id": "details-on-demand-examples",
+"front": "Name two forms of details-on-demand.",
+"back": "Side-by-side views, pop-up views, or focus-and-context views.",
+"tags": ["interaction", "details-on-demand"],
+"sources": ["week_09_interaction_2025.pdf, slides 29-31"]
+},
+{
+"id": "misleading-three-strategies",
+"front": "What are Cairo’s three broad strategies for misleading through visualisation?",
+"back": "Hiding relevant data, displaying too much data, and using graphic forms in inappropriate ways.",
+"tags": ["critical", "misleading-visualisation"],
+"sources": ["week_10_CriticalConsiderations_2025.pdf, slides 9-10"]
+},
+{
+"id": "data-provenance-definition",
+"front": "What does data provenance involve in visualisation?",
+"back": "Being transparent about data sources, references, context, and data collection.",
+"tags": ["critical", "provenance"],
+"sources": ["week_10_CriticalConsiderations_2025.pdf, slide 18"]
+},
+{
+"id": "uncertainty-aleatory",
+"front": "What is aleatory uncertainty?",
+"back": "Irreducible randomness inherent in a process.",
+"tags": ["critical", "uncertainty"],
+"sources": ["week_10_CriticalConsiderations_2025.pdf, slide 21"]
+},
+{
+"id": "uncertainty-epistemic",
+"front": "What is epistemic uncertainty?",
+"back": "Uncertainty from lack of knowledge that could theoretically be reduced with more information.",
+"tags": ["critical", "uncertainty"],
+"sources": ["week_10_CriticalConsiderations_2025.pdf, slide 21"]
+},
+{
+"id": "uncertainty-ontological",
+"front": "What is ontological uncertainty?",
+"back": "Uncertainty about how accurately the modelling describes reality.",
+"tags": ["critical", "uncertainty"],
+"sources": ["week_10_CriticalConsiderations_2025.pdf, slide 21"]
+},
+{
+"id": "uncertainty-summary-visualisations",
+"front": "Name two visualisations that summarise uncertainty using intervals or summaries.",
+"back": "Error bars, box plots, or icon arrays.",
+"tags": ["critical", "uncertainty"],
+"sources": ["week_10_CriticalConsiderations_2025.pdf, slides 23-25"]
+},
+{
+"id": "uncertainty-underlying-data",
+"front": "Name two visualisations that show distributions for uncertainty.",
+"back": "Gradient plots, quantile dot plots, violin plots, hypothetical outcome plots, or ensemble plots.",
+"tags": ["critical", "uncertainty"],
+"sources": ["week_10_CriticalConsiderations_2025.pdf, slides 26-28"]
+},
+{
+"id": "error-bars-limitation",
+"front": "What is a limitation of error bars?",
+"back": "They summarise data and can lead to misinterpretation.",
+"tags": ["critical", "uncertainty"],
+"sources": ["week_10_CriticalConsiderations_2025.pdf, slide 25"]
+},
+{
+"id": "misleading-truncated-axes",
+"front": "How can axes mislead in visualisation?",
+"back": "Obscuring or truncating axes can exaggerate or distort patterns.",
+"tags": ["critical", "misleading-visualisation"],
+"sources": ["week_10_CriticalConsiderations_2025.pdf, slides 39-40"]
+},
+{
+"id": "misleading-3d-effects",
+"front": "Why can inappropriate 3D effects be misleading?",
+"back": "They can obscure the data.",
+"tags": ["critical", "3d"],
+"sources": ["week_10_CriticalConsiderations_2025.pdf, slide 41"]
+},
+{
+"id": "data-feminism-six-principles",
+"front": "Name the six principles of data feminism.",
+"back": "Rethink boundaries, embrace pluralism, examine power and aspire to empowerment, consider context, legitimise embodiment and affect, make labour visible.",
+"tags": ["critical", "data-feminism"],
+"sources": ["week_11_Trends_in_DataViz_2025.pdf, slide 9"]
+},
+{
+"id": "data-feminism-goal",
+"front": "What does data feminism emphasise in visualisation?",
+"back": "That data, design, and communities of use are intertwined, and design decisions expose assumptions.",
+"tags": ["critical", "data-feminism"],
+"sources": ["week_11_Trends_in_DataViz_2025.pdf, slide 8"]
+},
+{
+"id": "data-feminism-rethink-binaries",
+"front": "What does 'rethink binaries' ask designers to do?",
+"back": "Use representational strategies based on multiplicity rather than fixed binaries.",
+"tags": ["critical", "data-feminism"],
+"sources": ["week_11_Trends_in_DataViz_2025.pdf, slide 10"]
+},
+{
+"id": "data-feminism-embrace-pluralism",
+"front": "What does 'embrace pluralism' emphasise?",
+"back": "Considering whose voices, perspectives, and subject positions are included or excluded.",
+"tags": ["critical", "data-feminism"],
+"sources": ["week_11_Trends_in_DataViz_2025.pdf, slide 11"]
+},
+{
+"id": "data-feminism-make-labour-visible",
+"front": "What does 'make labour visible' involve?",
+"back": "Crediting those responsible for data collection, digitisation, cleaning, maintenance, and other project work.",
+"tags": ["critical", "data-feminism", "provenance"],
+"sources": ["week_11_Trends_in_DataViz_2025.pdf, slide 15"]
+},
+{
+"id": "correll-ethical-obligations",
+"front": "According to Correll, what are three ethical obligations of visualisation researchers?",
+"back": "Make the invisible visible, collect data with empathy, and challenge structures of power.",
+"tags": ["critical", "ethics"],
+"sources": ["week_11_Trends_in_DataViz_2025.pdf, slide 16"]
+},
+{
+"id": "do-no-harm-data",
+"front": "What is the first recommendation in the Do No Harm Guide?",
+"back": "Critically examine your data.",
+"tags": ["critical", "ethics"],
+"sources": ["week_11_Trends_in_DataViz_2025.pdf, slide 17"]
+},
+{
+"id": "do-no-harm-language",
+"front": "What language guidance appears in the Do No Harm Guide?",
+"back": "Use people-first language.",
+"tags": ["critical", "ethics"],
+"sources": ["week_11_Trends_in_DataViz_2025.pdf, slide 17"]
+},
+{
+"id": "data-comics-definition",
+"front": "What is a data comic?",
+"back": "A sequence of panels where text and images, including data and non-data graphics, convey a series of messages.",
+"tags": ["trends", "data-comics"],
+"sources": ["week_11_Trends_in_DataViz_2025.pdf, slide 19"]
+},
+{
+"id": "data-comics-components",
+"front": "What are the four essential components of data comics?",
+"back": "Visualisation, flow, narration, and words & pictures.",
+"tags": ["trends", "data-comics"],
+"sources": ["week_11_Trends_in_DataViz_2025.pdf, slides 21-25"]
+},
+{
+"id": "scrollytelling-definition",
+"front": "What is scrollytelling?",
+"back": "A digital storytelling technique combining interactive scrolling with visual and textual elements to create a structured, immersive experience.",
+"tags": ["trends", "scrollytelling"],
+"sources": ["week_11_Trends_in_DataViz_2025.pdf, slide 29"]
+},
+{
+"id": "pie-chart-good-for",
+"front": "What are pie charts typically used to show?",
+"back": "Part-to-whole relationships or proportions of a total.",
+"tags": ["techniques", "pie-chart"],
+"sources": ["CS5044-24-2-1.pdf, question 1c", "week_07_chartJunk_maps_text_2025.pdf, slides 12-13"]
+},
+{
+"id": "pie-chart-weakness",
+"front": "What is a major weakness of pie charts?",
+"back": "It is difficult to accurately compare angles or areas, especially with similar-sized slices.",
+"tags": ["techniques", "pie-chart"],
+"sources": ["CS5044-24-2-1.pdf, question 1c", "CS5044-25-2-1.pdf, question 1a"]
+},
+{
+"id": "pie-chart-alternative",
+"front": "What is a common alternative to a pie chart for comparing parts of a whole?",
+"back": "A bar chart or stacked bar chart.",
+"tags": ["techniques", "pie-chart", "alternatives"],
+"sources": ["CS5044-24-2-1.pdf, question 1c", "CS5044-25-2-1.pdf, question 1a"]
+}
+]
+}
