@@ -275,7 +275,11 @@ def _parse_source(source: Any) -> str:
             value = source.get(key)
             if value:
                 parts.append(str(value).strip())
-        return ", ".join(parts) if parts else json.dumps(source, sort_keys=True)
+        if parts:
+            return ", ".join(parts)
+        if any(source.values()):
+            return json.dumps(source, sort_keys=True)
+        return ""
     return str(source).strip()
 
 
@@ -342,7 +346,7 @@ def build_llm_progress_report(
             "weakest_tags": [tag for tag, stats in weakest_tags if stats["weak_cards"] > 0][:8],
         },
         "generation_guidance": {
-            "goal": "Generate a targeted follow-up Open Cards deck from this progress report.",
+            "goal": "Generate a targeted follow-up OpenCards deck from this progress report.",
             "prioritize": [
                 "Cards with learning_signal forgotten, fragile, low_ease, or relearning.",
                 "Tags listed in summary.weakest_tags.",
@@ -354,7 +358,7 @@ def build_llm_progress_report(
                 "Adding unsupported facts not present in original card text or sources.",
                 "Turning one weak concept into a broad essay question.",
             ],
-            "output_contract": "Return an Open Cards deck JSON object with deck and cards only.",
+            "output_contract": "Return an OpenCards deck JSON object with deck and cards only.",
         },
         "recommended_prompt": _recommended_followup_prompt(deck.name),
         "tag_stats": tag_stats,
@@ -464,7 +468,7 @@ def _normalized_grade_counts(value: Any) -> dict[str, int]:
 
 def _recommended_followup_prompt(deck_name: str) -> str:
     return (
-        "Use this Open Cards LLM progress report to generate a targeted follow-up deck. "
+        "Use this OpenCards LLM progress report to generate a targeted follow-up deck. "
         f"Name the new deck '{deck_name} Follow-up'. Return valid JSON only with top-level "
         "fields deck and cards. Focus on weak_cards, weakest_tags, lapses, and recent Again/Hard "
         "grades. Do not duplicate original cards verbatim. Use each source card's front, back, "

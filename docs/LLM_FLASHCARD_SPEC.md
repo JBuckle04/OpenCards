@@ -1,6 +1,6 @@
 # LLM Flashcard Deck Spec
 
-Use this spec when asking an LLM to generate decks for Open Cards.
+Use this spec when asking an LLM to generate decks for OpenCards.
 
 ## Output Rules
 
@@ -51,7 +51,7 @@ Each card requires:
 - `extra`: Short optional context shown in the card footer.
 - `sources`: Array of citation strings or simple source objects. Use this when cards must remain traceable to source material.
 
-Open Cards displays sources after the answer is revealed and includes them in LLM progress reports.
+OpenCards displays sources after the answer is revealed and includes them in LLM progress reports.
 
 ## Source And Citation Rules
 
@@ -98,7 +98,7 @@ Avoid:
 
 ## Ready-To-Paste Prompt
 
-Generate an Open Cards deck from the source material below.
+Generate an OpenCards deck from the source material below.
 
 Return valid JSON only. Do not use Markdown, commentary, citations outside JSON, or tool/process notes. Follow this exact shape:
 
@@ -136,7 +136,7 @@ Source material:
 
 Use this when the generating model has searched or read documents and must cite them.
 
-Generate an Open Cards deck from the provided documents.
+Generate an OpenCards deck from the provided documents.
 
 Return one valid JSON object only. Do not include Markdown fences, prose explanations, search notes, or citations outside the JSON.
 
@@ -175,9 +175,9 @@ Return this shape:
 
 ## Prompt Variant For Progress-Based Follow-Up Decks
 
-Use this when generating a new deck from an Open Cards LLM progress report.
+Use this when generating a new deck from an OpenCards LLM progress report.
 
-Generate a targeted Open Cards follow-up deck from this progress report.
+Generate a targeted OpenCards follow-up deck from this progress report.
 
 Return one valid JSON object only. Do not include Markdown fences, prose explanations, or citations outside the JSON.
 
@@ -214,4 +214,4 @@ Return this shape:
 
 Progress report:
 
-[PASTE OPEN CARDS LLM PROGRESS REPORT JSON HERE]
+[PASTE OpenCards LLM PROGRESS REPORT JSON HERE]

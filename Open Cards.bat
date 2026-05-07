@@ -4,7 +4,7 @@ setlocal
 cd /d "%~dp0"
 
 echo.
-echo Open Cards
+echo OpenCards
 echo ==========
 echo.
 
@@ -34,7 +34,7 @@ exit /b 1
 :check_python
 %PYTHON_CMD% -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)"
 if not %errorlevel%==0 (
-  echo Open Cards needs Python 3.11 or newer.
+  echo OpenCards needs Python 3.11 or newer.
   echo.
   echo The Python found on this computer is:
   %PYTHON_CMD% --version
@@ -46,11 +46,11 @@ if not %errorlevel%==0 (
   exit /b 1
 )
 
-echo Starting Open Cards...
+echo Starting OpenCards...
 %PYTHON_CMD% "%~dp0app.py"
 if not %errorlevel%==0 (
   echo.
-  echo Open Cards stopped with an error.
+  echo OpenCards stopped with an error.
   echo If this keeps happening, share the text in this window with the project maintainer.
   echo.
   pause

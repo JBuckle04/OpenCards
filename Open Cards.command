@@ -7,7 +7,7 @@ cd "$APP_DIR" || exit 1
 
 print_header() {
   echo ""
-  echo "Open Cards"
+  echo "OpenCards"
   echo "=========="
   echo ""
 }
@@ -50,7 +50,7 @@ raise SystemExit(0 if sys.version_info >= (3, 11) else 1)
 PY
 
 if [[ $? -ne 0 ]]; then
-  echo "Open Cards needs Python 3.11 or newer."
+  echo "OpenCards needs Python 3.11 or newer."
   echo ""
   echo "The Python found on this Mac is:"
   "$PYTHON_CMD" --version
@@ -61,13 +61,13 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-echo "Starting Open Cards..."
+echo "Starting OpenCards..."
 "$PYTHON_CMD" "$APP_DIR/app.py"
 APP_STATUS=$?
 
 if [[ $APP_STATUS -ne 0 ]]; then
   echo ""
-  echo "Open Cards stopped with an error."
+  echo "OpenCards stopped with an error."
   echo "If this keeps happening, share the text in this window with the project maintainer."
   pause_before_close
 fi

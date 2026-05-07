@@ -32,8 +32,9 @@ PROGRESS_DIR = PROGRAM_DIR / "progress"
 REPORTS_DIR = PROGRAM_DIR / "reports"
 DEFAULT_DECK = DECKS_DIR / "flashcards.json"
 LEGACY_PROGRESS = PROGRESS_DIR / "legacy_progress.json"
+THEME_PATH = PROGRESS_DIR / "theme.txt"
 
-COLORS = {
+LIGHT_COLORS = {
     "bg": "#f6f8fb",
     "panel": "#ffffff",
     "panel_alt": "#f9fbfd",
@@ -50,7 +51,35 @@ COLORS = {
     "rose_hover": "#9f1239",
     "soft_blue": "#dbeafe",
     "soft_mint": "#ccfbf1",
+    "stats_text": "#1e3a8a",
+    "disabled": "#eef2f7",
+    "disabled_text": "#98a2b3",
 }
+
+DARK_COLORS = {
+    "bg": "#0f172a",
+    "panel": "#172033",
+    "panel_alt": "#111827",
+    "text": "#e5eefb",
+    "muted": "#9aa7bd",
+    "line": "#2c3a52",
+    "brand": "#3b82f6",
+    "brand_hover": "#60a5fa",
+    "mint": "#14b8a6",
+    "mint_hover": "#2dd4bf",
+    "amber": "#d97706",
+    "amber_hover": "#f59e0b",
+    "rose": "#e11d48",
+    "rose_hover": "#fb7185",
+    "soft_blue": "#1e3a8a",
+    "soft_mint": "#134e4a",
+    "stats_text": "#dbeafe",
+    "disabled": "#263244",
+    "disabled_text": "#64748b",
+}
+
+THEMES = {"light": LIGHT_COLORS, "dark": DARK_COLORS}
+COLORS = LIGHT_COLORS.copy()
 
 
 @dataclass(frozen=True)
@@ -110,6 +139,24 @@ def default_report_path(deck_path: Path, generated_at: datetime | None = None) -
     generated_at = generated_at or datetime.now()
     timestamp = generated_at.strftime("%Y%m%d_%H%M%S_%f")
     return REPORTS_DIR / f"{deck_path.stem}_llm_progress_report_{timestamp}.json"
+
+
+def load_theme_preference() -> str:
+    try:
+        theme = THEME_PATH.read_text(encoding="utf-8").strip().lower()
+    except OSError:
+        return "light"
+    return theme if theme in THEMES else "light"
+
+
+def save_theme_preference(theme: str) -> None:
+    PROGRESS_DIR.mkdir(parents=True, exist_ok=True)
+    THEME_PATH.write_text(theme, encoding="utf-8")
+
+
+def apply_global_theme(theme: str) -> None:
+    COLORS.clear()
+    COLORS.update(THEMES.get(theme, LIGHT_COLORS))
 
 
 def draw_round_rect(
@@ -217,9 +264,9 @@ class RoundedButton(tk.Canvas):
         fill: str,
         active_fill: str,
         foreground: str = "#ffffff",
-        disabled_fill: str = "#eef2f7",
-        disabled_foreground: str = "#98a2b3",
-        background: str = COLORS["bg"],
+        disabled_fill: str | None = None,
+        disabled_foreground: str | None = None,
+        background: str | None = None,
         radius: int = 15,
         height: int = 46,
         min_width: int = 118,
@@ -228,7 +275,7 @@ class RoundedButton(tk.Canvas):
             master,
             height=height,
             width=min_width,
-            bg=background,
+            bg=background or COLORS["bg"],
             highlightthickness=0,
             borderwidth=0,
             relief="flat",
@@ -239,8 +286,8 @@ class RoundedButton(tk.Canvas):
         self.fill = fill
         self.active_fill = active_fill
         self.foreground = foreground
-        self.disabled_fill = disabled_fill
-        self.disabled_foreground = disabled_foreground
+        self.disabled_fill = disabled_fill or COLORS["disabled"]
+        self.disabled_foreground = disabled_foreground or COLORS["disabled_text"]
         self.radius = radius
         self.button_state = "normal"
         self.is_hovered = False
@@ -298,6 +345,8 @@ class FlashcardApp(tk.Tk):
         self.title(APP_NAME)
         self.geometry("1040x720")
         self.minsize(820, 600)
+        self.theme_name = load_theme_preference()
+        apply_global_theme(self.theme_name)
         self.configure(bg=COLORS["bg"])
 
         self.deck_path = deck_path
@@ -360,7 +409,7 @@ class FlashcardApp(tk.Tk):
         self.style.configure(
             "Stats.TLabel",
             background=COLORS["soft_blue"],
-            foreground="#1e3a8a",
+            foreground=COLORS["stats_text"],
             padding=(12, 6),
             font=("TkDefaultFont", 10, "bold"),
         )
@@ -423,7 +472,7 @@ class FlashcardApp(tk.Tk):
         header_text.grid(row=0, column=0, sticky="ew")
         header_text.columnconfigure(0, weight=1)
 
-        ttk.Label(header_text, text="OPEN CARDS", style="Eyebrow.TLabel").grid(
+        ttk.Label(header_text, text="Open Cards", style="Eyebrow.TLabel").grid(
             row=0, column=0, sticky="w"
         )
         self.deck_label = ttk.Label(header_text, text="No deck loaded", style="Title.TLabel")
@@ -435,7 +484,7 @@ class FlashcardApp(tk.Tk):
             command=None,
             fill=COLORS["soft_blue"],
             active_fill=COLORS["soft_blue"],
-            foreground="#1e3a8a",
+            foreground=COLORS["stats_text"],
             background=COLORS["panel"],
             radius=18,
             height=40,
@@ -530,6 +579,18 @@ class FlashcardApp(tk.Tk):
         )
         self.report_button.grid(row=0, column=4, sticky="w")
         self.report_button.configure(state="disabled")
+
+        self.theme_button = RoundedButton(
+            action_bar,
+            text=self._theme_button_text(),
+            command=self.toggle_theme,
+            fill=COLORS["panel_alt"],
+            active_fill=COLORS["soft_blue"],
+            foreground=COLORS["text"],
+            background=COLORS["panel"],
+            min_width=122,
+        )
+        self.theme_button.grid(row=0, column=5, sticky="w", padx=(8, 0))
 
         body = ttk.Frame(self, padding=(18, 0, 18, 10), style="App.TFrame")
         body.grid(row=1, column=0, sticky="nsew")
@@ -662,6 +723,39 @@ class FlashcardApp(tk.Tk):
 
     def _build_menu(self) -> None:
         return
+
+    def _theme_button_text(self) -> str:
+        return "Light Mode" if self.theme_name == "dark" else "Dark Mode"
+
+    def toggle_theme(self) -> None:
+        self.theme_name = "dark" if self.theme_name == "light" else "light"
+        save_theme_preference(self.theme_name)
+        apply_global_theme(self.theme_name)
+        self.configure(bg=COLORS["bg"])
+        self._rebuild_ui_after_theme_change()
+
+    def _rebuild_ui_after_theme_change(self) -> None:
+        current_card = self.current_card
+        answer_visible = self.answer_visible
+        for child in self.winfo_children():
+            child.destroy()
+        self._configure_styles()
+        self._build_ui()
+        self.refresh_deck_list()
+        if self.deck:
+            self.deck_label.configure(text=self.deck.name)
+            self._select_deck_in_picker(self.deck_path)
+        if current_card:
+            self.current_card = current_card
+            self.answer_visible = answer_visible
+            self._render_current_card()
+        else:
+            message = (
+                "No cards are due. Use Study All (A) to keep studying."
+                if self.deck
+                else f"Create a deck JSON file in {DECKS_DIR}."
+            )
+            self._show_empty_state(message)
 
     def _bind_shortcuts(self) -> None:
         self.bind_all("<space>", self._shortcut_show_answer)
@@ -803,12 +897,25 @@ class FlashcardApp(tk.Tk):
             self._show_empty_state("No cards are due. Use Study All (A) to keep studying.")
             return
 
+        self._render_current_card()
+
+    def _render_current_card(self) -> None:
+        if not self.current_card:
+            return
         self.deck_label.configure(text=self.deck.name)
         self._write_text(self.front_text, self.current_card.front)
-        self._write_text(self.back_text, "Press Show Answer when you are ready.")
-        self.show_button.configure(state="normal")
+        back_content = (
+            self._format_back_content(self.current_card)
+            if self.answer_visible
+            else "Press Show Answer when you are ready."
+        )
+        self._write_text(self.back_text, back_content)
+        self.show_button.configure(state="disabled" if self.answer_visible else "normal")
         self.study_all_button.configure(state="normal")
-        self._set_grade_buttons(enabled=False)
+        self.report_button.configure(state="normal")
+        self.due_button.configure(state="normal")
+        self._set_grade_buttons(enabled=self.answer_visible)
+        self._update_stats()
         self._update_detail_label()
 
     def _show_empty_state(self, message: str) -> None:
@@ -906,7 +1013,7 @@ class FlashcardApp(tk.Tk):
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Review JSON flashcards with Open Cards.")
+    parser = argparse.ArgumentParser(description=f"Review JSON flashcards with {APP_NAME}.")
     parser.add_argument(
         "deck",
         nargs="?",

@@ -1,6 +1,6 @@
-# Open Cards
+# OpenCards
 
-Open Cards is a local Python flashcard app that reads JSON decks and reviews them with an Anki-style flow:
+OpenCards is a local Python flashcard app that reads JSON decks and reviews them with an Anki-style flow:
 
 1. Read the front of the card.
 2. Reveal the answer.
@@ -9,7 +9,7 @@ Open Cards is a local Python flashcard app that reads JSON decks and reviews the
 
 Decks are loaded from JSON files in `decks/`. Use the in-app deck dropdown to switch decks.
 
-Open Cards can also export an LLM progress report from the current deck. Use `Export LLM Report`
+OpenCards can also export an LLM progress report from the current deck. Use `Export LLM Report`
 after studying to create a targeted input for generating a follow-up deck. Everything runs locally;
 there is no hosted sync service or external account dependency.
 
@@ -29,10 +29,10 @@ reports/                # generated LLM progress reports, ignored by git
 
 Quick start:
 
-- macOS: double-click `Open Cards.command`.
-- Windows: double-click `Open Cards.bat`.
+- macOS: double-click `OpenCards.command`.
+- Windows: double-click `OpenCards.bat`.
 
-If Python is missing, the launcher will explain where to install it from. Open Cards needs Python
+If Python is missing, the launcher will explain where to install it from. OpenCards needs Python
 3.11 or newer.
 
 For terminal users:
@@ -154,6 +154,9 @@ deck JSON in `decks/`, then use `Refresh Decks` and load it from the deck dropdo
 `Study All` uses a priority score rather than deck order. Cards you recently missed, marked hard,
 lapsed, have low ease, or are due appear first. Cards with the same score are shuffled so repeat
 sessions stay fresh.
+
+Use the `Dark Mode` / `Light Mode` button in the header to switch themes. The choice is saved
+locally in `progress/theme.txt`.
 
 ## Tests
 
