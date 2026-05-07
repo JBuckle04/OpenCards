@@ -13,3 +13,6 @@ reports/
 venv/
 .idea/
 .vscode/
+
+#Local cards and decks
+*.json
