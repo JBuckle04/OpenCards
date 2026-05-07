@@ -13,6 +13,105 @@ OpenCards can also export an LLM progress report from the current deck. Use `Exp
 after studying to create a targeted input for generating a follow-up deck. Everything runs locally;
 there is no hosted sync service or external account dependency.
 
+## Getting Started
+
+### 1. Run OpenCards
+
+Double-click the launcher for your system:
+
+- macOS: `OpenCards.command`
+- Windows: `OpenCards.bat`
+
+The app looks for deck files in `decks/`. A deck is a `.json` file containing a `deck` name and
+an array of `cards`.
+
+### 2. Generate A Deck With ChatGPT
+
+Open a new ChatGPT conversation and upload:
+
+- `docs/LLM_FLASHCARD_SPEC.md`
+- The source material you want to study, such as PDFs, Word documents, slides, text files, Markdown
+  notes, or copied course notes saved as a file
+
+In ChatGPT, use the attachment or add-file button to upload the files. ChatGPT supports common
+document, text, spreadsheet, and presentation formats. If your material is in Google Docs, export it
+as `.pdf` or `.docx` first rather than uploading a `.gdoc` shortcut. For current upload limits and
+supported file types, see OpenAI's [File Uploads FAQ](https://help.openai.com/en/articles/8555545-uploading-files-in-chatgpt).
+
+Then send a prompt like this:
+
+```text
+Use the uploaded OpenCards flashcard spec as the output contract.
+Generate a flashcard deck from the uploaded source material.
+Return valid JSON only. Do not wrap it in Markdown.
+Include sources for each factual card when a source locator is available.
+Prefer 20 to 40 cards unless the material clearly needs fewer.
+```
+
+The result should start with `{` and end with `}`. If ChatGPT includes Markdown fences such as
+````text
+```json
+````
+ask it to resend the answer as raw JSON only.
+
+### 3. Save The Result As A Deck
+
+Create a new file in `decks/` with a clear `.json` name, for example:
+
+```text
+decks/information-visualisation-revision.json
+```
+
+Paste the JSON into that file. If ChatGPT gives you a downloadable `.json` file, download it, rename
+it clearly, and move it into `decks/`.
+
+Before loading it, quickly check:
+
+- The file extension is `.json`.
+- The top-level object has `deck` and `cards`.
+- Each card has at least `id`, `front`, and `back`.
+- The JSON is not wrapped in Markdown fences.
+
+Deck files in `decks/` are ignored by git by default, so your study material stays local unless you
+intentionally force-add a sample deck.
+
+### 4. Load The Deck
+
+In OpenCards:
+
+1. Open `More`.
+2. Choose `Refresh Decks`.
+3. Select the new deck from the dropdown.
+4. Press `Load Deck`.
+
+You can also use `More` > `Open JSON...` to load a deck from another location.
+
+### 5. Generate Follow-Up Decks From Progress
+
+After studying for a while, press `Export LLM Report`. OpenCards will save a timestamped report in
+`reports/`.
+
+Upload these files to ChatGPT:
+
+- `docs/LLM_FLASHCARD_SPEC.md`
+- The new report from `reports/`
+- The original source files, if you want ChatGPT to stay close to the source material
+
+Then send:
+
+```text
+Use the uploaded OpenCards spec and progress report.
+Generate a targeted follow-up deck focused on weak, forgotten, fragile, or low-ease cards.
+Do not duplicate the original cards verbatim.
+Return valid JSON only.
+```
+
+Save the new JSON as a separate file in `decks/`, for example:
+
+```text
+decks/information-visualisation-follow-up-01.json
+```
+
 ## Project Layout
 
 ```text
